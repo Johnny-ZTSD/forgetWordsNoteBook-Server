@@ -11,7 +11,7 @@ spring:
   datasource: # database configuration
     url : jdbc:mysql://johnnyzen.cn:3306/forget_words_notebook?useUnicode=true&characterEncoding=UTF-8
     username : johnny
-    password : johnnyzt0811
+    password : test
     driver-class-name: com.mysql.jdbc.Driver
   jpa:
     database : MYSQL
