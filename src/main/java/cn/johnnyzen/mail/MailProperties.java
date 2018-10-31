@@ -36,6 +36,11 @@ public class MailProperties {
      **/
     private String host;
 
+    /*
+     * 邮件的主题(即 标题)
+     * */
+    private String subject;
+
     private String senderEmail;
     /*
      * 发件人邮箱的授权码
@@ -48,6 +53,14 @@ public class MailProperties {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public String getSenderEmail() {
@@ -115,6 +128,7 @@ public class MailProperties {
                 ", serverDomain='" + serverDomain + '\'' +
                 ", actionPath='" + actionPath + '\'' +
                 ", host='" + host + '\'' +
+                ", subject='" + subject + '\'' +
                 ", senderEmail='" + senderEmail + '\'' +
                 ", authCode='" + authCode + '\'' +
                 '}';

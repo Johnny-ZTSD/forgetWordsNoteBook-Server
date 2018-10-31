@@ -40,10 +40,11 @@ endpoints:
 #### 用户自定义
 mail:
   protocol: http # 协议
-  serverDomain: localhost # 本服务器域名或者IP
+  serverDomain: johnnyzen.cn # 本服务器域名或者IP
   port: 8080
   contextPath: /forget-words-notebook # 开发环境>项目名
   actionPath: /register-activate #请求激活服务的URI
   host: smtp.qq.com # 指定发送邮件的主机smtp.qq.com(QQ)|smtp.163.com(网易)
+  subject: 【Forget Words NoteBook - Activate Your Account】
   senderEmail: 1125418540@qq.com # 发件人邮箱
   authCode: pmbemumvpqafjbea # 授权码

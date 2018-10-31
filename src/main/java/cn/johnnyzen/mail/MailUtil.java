@@ -85,7 +85,7 @@ public class MailUtil implements Runnable {
                 mailProperties.setContextPath(contextPath.substring(1));
             }
 
-            message.setSubject("[ 账号激活    --" + mailProperties.getContextPath() + "]");
+            message.setSubject(mailProperties.getSubject());
             // 2.4设置邮件内容
             String actionPath = mailProperties.getActionPath();
             if(actionPath.startsWith("/")){//判断actionPath有无/符去，如果有统一除/
@@ -98,12 +98,12 @@ public class MailUtil implements Runnable {
                         + mailProperties.getActionPath()
                         + "?code=" + activateCode;
             String content =
-                    "<html><head></head><body><h1>这是一封激活邮件,激活请点击以下链接</h1><h3>" +
+                    "<html><head></head><body><h1>This is a account activate email,please click this link if you follow activate your account.</h1><h3>" +
                             "<a href='" + url + "'>" + url + "</href></h3></body></html>";
             message.setContent(content, "text/html;charset=UTF-8");
             // 3.发送邮件
             Transport.send(message);
-            System.out.println("邮件成功发送!");
+            System.out.println("[MailUtil] 邮件成功发送!");
         } catch (Exception e) {
             e.printStackTrace();
         }
