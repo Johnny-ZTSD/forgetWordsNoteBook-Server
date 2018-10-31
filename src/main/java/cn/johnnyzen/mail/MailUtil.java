@@ -98,7 +98,7 @@ public class MailUtil implements Runnable {
                         + mailProperties.getActionPath()
                         + "?code=" + activateCode;
             String content =
-                    "<html><head></head><body><h1>This is a account activate email,please click this link if you follow activate your account.</h1><h3>" +
+                    "<html><head></head><body><h1>This is a account activate email,please click this link if you like activate your account.</h1><h3>" +
                             "<a href='" + url + "'>" + url + "</href></h3></body></html>";
             message.setContent(content, "text/html;charset=UTF-8");
             // 3.发送邮件
