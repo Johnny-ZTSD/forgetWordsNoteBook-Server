@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>用户注册 -- [忘词本]</title>
 </head>
-<body>
-<div>恭喜您，通过邮箱号(<span th:text="${session.register_user_email}"></span>)注册成功~</div>
-    <div>请登陆APP终端。
-  <!--  <div><a href="user/login.html">点击登录</a></div>-->
-</body>
-</html>
+<body style="padding-left: 1em;padding-right: 1em;">
+    <div style="">
+        <div style="font-size:2em;text-indent: 2em;line-height: 2em;color:#30455d;background-color:#e3e9ed;border:1px solid #e3e9ed;width:100%;text-align:left;font-weight:bolder">
+            注册激活
+        </div>
+        <div style="font-size:2em;background-color:#ffffff;width:100%;text-indent:2em;line-height: 2em; text-align:left;border:1px solid #e3e9ed">
+            <div>
+                您好，已激活您的账号：<a href="javascript:void(0)" style="color:red">${session.register_user_email}</a> !
+            </div>
+            <div>
+                欢迎登陆 忘词本 Apps。
+            </div>
+        </div>
+        <!--  <div><a href="user/login.html">点击登录</a></div>-->
+    </div>
+</body
+></html>
