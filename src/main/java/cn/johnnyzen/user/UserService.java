@@ -306,6 +306,7 @@ public class UserService {
         user.setUsername(username);
         user.setPassword(password);
         user.setEmail(email);
+        user.setAccountState(0); // 0 未激活
         user.setActivateCode(code);
 
         logger.info(user.toString());
