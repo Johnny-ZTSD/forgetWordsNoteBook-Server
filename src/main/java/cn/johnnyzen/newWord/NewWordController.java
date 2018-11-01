@@ -31,7 +31,7 @@ public class NewWordController {
     public Result searchWords(HttpServletRequest request,
                               @RequestParam(value = "search",required = true) String search,
                               @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.searchWords] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.searchWords] 接口暂未开发");
     }
 
     @RequestMapping(value = "/viewWord/api")
@@ -39,7 +39,7 @@ public class NewWordController {
     public Result viewWord(HttpServletRequest request,
                               @RequestParam(value = "englishWord",required = true) String englishWord,
                               @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.viewWord] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewWord] 接口暂未开发");
     }
 
     @RequestMapping(value = "/saveNewWord/api")
@@ -48,7 +48,7 @@ public class NewWordController {
                            @RequestParam(value = "englishWord",required = true) String englishWord,
                            @RequestParam(value = "chineseTranslate",required = true) String chineseTranslate,
                            @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.saveNewWord] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.saveNewWord] 接口暂未开发");
     }
 
     @RequestMapping(value = "/tagStoredWord/api")
@@ -56,7 +56,7 @@ public class NewWordController {
     public Result tagStoredWord(HttpServletRequest request,
                               @RequestParam(value = "id",required = true) Integer id,
                               @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.tagStoredWord] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.tagStoredWord] 接口暂未开发");
     }
 
     @RequestMapping(value = "/tagForgetWord/api")
@@ -64,7 +64,7 @@ public class NewWordController {
     public Result tagForgetWord(HttpServletRequest request,
                                 @RequestParam(value = "id",required = true) Integer id,
                                 @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.tagForgetWord] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.tagForgetWord] 接口暂未开发");
     }
 
     @RequestMapping(value = "/viewEverydayNewWords/api")
@@ -72,7 +72,7 @@ public class NewWordController {
     public Result viewEverydayNewWords(HttpServletRequest request,
                                        @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                        @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.viewEverydayNewWords] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewEverydayNewWords] 接口暂未开发");
     }
 
     @RequestMapping(value = "/viewOftenForgotWords/api")
@@ -80,14 +80,14 @@ public class NewWordController {
     public Result viewOftenForgotWords(HttpServletRequest request,
                                 @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                 @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.viewOftenForgotWords] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewOftenForgotWords] 接口暂未开发");
     }
 
     @RequestMapping(value = "/viewDisorderdWords/api")
     @ResponseBody
     public Result viewDisorderdWords(HttpServletRequest request,
                                      @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.viewDisorderdWords] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewDisorderdWords] 接口暂未开发");
     }
 
     @RequestMapping(value = "/viewForgetWords/api")
@@ -96,7 +96,7 @@ public class NewWordController {
                                   @RequestParam(value = "searchType",required = true) String searchType,
                                   @RequestParam(value = "sortType",required = true) String sortType,
                                   @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.viewForgetWords] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewForgetWords] 接口暂未开发");
     }
 
     @RequestMapping(value = "/deleteNewWords/api")
@@ -104,6 +104,6 @@ public class NewWordController {
     public Result deleteNewWords(HttpServletRequest request,
                                   @RequestParam(value = "id",required = true) String id,
                                   @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.deleteNewWords] 接口暂未开发");
+        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.deleteNewWords] 接口暂未开发");
     }
 }
