@@ -15,8 +15,8 @@ import java.util.Set;
  * @Date: 2018/10/6  17:52:53
  * @Description: ...
  */
-@Entity
-@Table(name="tb_tag")
+//@Entity
+//@Table(name="tb_tag")
 public class Tag {
     @Id
     @GeneratedValue

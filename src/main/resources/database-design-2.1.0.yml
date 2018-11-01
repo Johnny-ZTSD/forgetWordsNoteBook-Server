@@ -1,0 +1,40 @@
+# 数据库设计 2.1.0 [重构第一版]
+
+## Table：用户
+user:
+  id: 1 # pk
+  accountState: 1 # LOCKED:-1 / UNACTIVATE:0 / ACTIVATED:1
+  activateCode: 1dsf34f78sdfusdt73gy
+  username: johnny
+  email: 1125418540@qq.com
+  password: 123456
+  sex: F # M
+  logoUrl: /user/logo/1125418540@qq.com.jpg
+
+## Table：生词关系
+userFocusWord:
+  id: 1 # pk
+  userId: 1 # fk
+  wordId: 1 # fk
+  createNewWordDatetime: "2018-11-1 10:16" # 创建生词时间
+  lastStoredDatetime: "2018-11-1 10:16" # 最近记忆时间
+  lastForgotDatetime: "2018-11-3 12:36" # 最近遗忘时间
+  forgetCount: 3 # 遗忘次数
+  forgetRate: 200 # 遗忘权重指数
+
+
+## Table：单词表
+word:
+  id: 1 # pk
+  englishWord: family
+  chineseTranslate: n.家庭;
+  # tmpData: 2 #临时字段(数据库不存储)，如果是天数相关，2即为最近遗忘/记忆2天；如果是次数相关，即为遗忘2次，方便前端展示
+
+
+
+
+
+
+
+
+

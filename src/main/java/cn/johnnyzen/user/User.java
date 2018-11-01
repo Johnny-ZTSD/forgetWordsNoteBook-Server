@@ -1,13 +1,10 @@
 package cn.johnnyzen.user;
 
-import cn.johnnyzen.tag.Tag;
-import cn.johnnyzen.word.Word;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import cn.johnnyzen.newWord.NewWord;
 
 import javax.persistence.*;
 import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * @IDE: Created by IntelliJ IDEA.
@@ -31,12 +28,20 @@ public class User {
 
     private String password;
 
+    /* F:女;M:男 */
     private Character sex;
 
 //    @Column(columnDefinition = "comment 'LOCKED:-1/UNACTIVATE:0/ACTIVATED:1'")
     private Integer accountState;
 
     private String activateCode;
+
+    /*
+     * 用户头像的绝对url
+     * 根据固定策略生成url:url = http://域名:端口/上下文路径/user/logo/("${user.email}" + ".png")
+     **/
+    @Transient //临时字段，映射时忽略
+    private String logoUrl;
 
     @Transient //临时字段，映射时忽略
     private Calendar lastActiveDateTime;
@@ -46,22 +51,34 @@ public class User {
     private String token;
 
     //在不需要的转化json的属性上面设置@JsonIgnore，避免出现无线循环
-    @JsonIgnore
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+//    @JsonIgnore
+//    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 //    @MapKey(name="pk_ubt_id")
-    @JoinTable( //可接受多个@JoinColumn，用于配置连接表中外键列的信息
-            name="r_user_bind_tag",
-            joinColumns={@JoinColumn(name="fk_ubt_user_id")}, //主控端ID
-            inverseJoinColumns={@JoinColumn(name="fk_ubt_tag_id")})
-    private Set<Tag> tags = new HashSet<Tag>();
+//    @JoinTable( //可接受多个@JoinColumn，用于配置连接表中外键列的信息
+//            name="r_user_bind_tag",
+//            joinColumns={
+//                    @JoinColumn(name="fk_ubt_user_id")}, //主控端ID
+//            inverseJoinColumns={@JoinColumn(name="fk_ubt_tag_id")})
+//    private Set<Tag> tags = new HashSet<Tag>();
 
-    @JsonIgnore
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    @JoinTable(
-            name="r_user_focus_word",
-            joinColumns={@JoinColumn(name="fk_user_id")},
-            inverseJoinColumns={@JoinColumn(name="fk_word_id")})
-    private Set<Word> words = new HashSet<Word>();
+//    @JsonIgnore
+//    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name="r_user_focus_word",
+//            joinColumns={@JoinColumn(name="fk_user_id")},
+//            inverseJoinColumns={@JoinColumn(name="fk_word_id")})
+//    private Set<Word> words = new HashSet<Word>();
+
+//    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+//    private Collection<NewWord> newWords;
+//
+//    public Collection<NewWord> getNewWords() {
+//        return newWords;
+//    }
+//
+//    public void setNewWords(Collection<NewWord> newWords) {
+//        this.newWords = newWords;
+//    }
 
     public Integer getId() {
         return id;
@@ -119,6 +136,14 @@ public class User {
         this.activateCode = activateCode;
     }
 
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
+
     public Calendar getLastActiveDateTime() {
         return lastActiveDateTime;
     }
@@ -127,21 +152,21 @@ public class User {
         this.lastActiveDateTime = lastActiveDateTime;
     }
 
-    public Set<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
-    }
-
-    public Set<Word> getWords() {
-        return words;
-    }
-
-    public void setWords(Set<Word> words) {
-        this.words = words;
-    }
+//    public Set<Tag> getTags() {
+//        return tags;
+//    }
+//
+//    public void setTags(Set<Tag> tags) {
+//        this.tags = tags;
+//    }
+//
+//    public Set<Word> getWords() {
+//        return words;
+//    }
+//
+//    public void setWords(Set<Word> words) {
+//        this.words = words;
+//    }
 
     public String getToken() {
         return token;
@@ -166,6 +191,7 @@ public class User {
                 ",\n\t sex=" + sex +
                 ",\n\t accountState=" + accountState +
                 ",\n\t activateCode='" + activateCode + '\'' +
+                ",\n\t logoUrl=" + logoUrl + '\'' +
                 ",\n\t lastActiveDateTime=" + lastActiveDateTime +
                 ",\n\t token='" + token + '\'' +
                 "\n}";

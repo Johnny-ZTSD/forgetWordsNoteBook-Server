@@ -7,9 +7,9 @@ server:
 
 spring:
   profiles:
-#    active: dev
+    active: dev
   datasource: # database configuration
-    url : jdbc:mysql://johnnyzen.cn:3306/forget_words_notebook?useUnicode=true&characterEncoding=UTF-8
+    url : jdbc:mysql://johnnyzen.cn:3306/fwn?useUnicode=true&characterEncoding=UTF-8
     username : johnny
     password : test
     driver-class-name: com.mysql.jdbc.Driver

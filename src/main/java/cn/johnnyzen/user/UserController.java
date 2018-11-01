@@ -8,9 +8,12 @@ import com.sun.org.apache.regexp.internal.REUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
@@ -28,6 +31,35 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    /*
+     * @param token
+     *          登陆校验过滤器校验登陆时，由于上传文件的form-data形式无法读取token；
+     *          过滤器会从header中获取token；
+     *          也即提醒：本方法的特殊处在于，获取token需要从header中获取
+     * @param logo
+     * */
+    @PostMapping(value = "/updateUserLogo/api")
+    @ResponseBody
+    public Result updateUserLogo(HttpServletRequest request,
+                                 @RequestParam(value = "logo",required = true) MultipartFile logoFile){
+        try {
+            System.out.println(String.valueOf("[UserService.updateUserLogo] file content:\n"+logoFile.getBytes()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ResultUtil.error(ResultCode.FAIL, "[UserController.updateUserLogo] 接口暂未开发");
+    }
+
+    @PostMapping(value = "/updateUserInfo/api")
+    @ResponseBody
+    public Result updateUserInfo(HttpServletRequest request,
+                                 @RequestParam(value = "username",required = false) String username,
+                                 @RequestParam(value = "sex",required = false) String sex,
+                                 @RequestParam(value = "token",required = true) String token){
+        return ResultUtil.error(ResultCode.FAIL, "[UserController.updateUserInfo] 接口暂未开发");
+    }
+
 
     /*
      * 重置密码
@@ -59,7 +91,7 @@ public class UserController {
     }
 
     /* 退出登陆 */
-    @PostMapping(value = "/exitLogin/api")
+    @RequestMapping(value = "/exitLogin/api")
     @ResponseBody
     public Result exitLogin(HttpServletRequest request,
                             @RequestParam(value = "token",required = true) String token){
@@ -75,7 +107,7 @@ public class UserController {
      * 从session中获取登陆用户基本信息
      * token参数的检查，已移交LoginFilter
      * */
-    @PostMapping("/viewLoginUserInfo/api")
+    @RequestMapping("/viewLoginUserInfo/api")
     @ResponseBody
     public Result viewLoginUserInfo(HttpServletRequest request,
                                     @RequestParam(value = "token", required = true) String token){

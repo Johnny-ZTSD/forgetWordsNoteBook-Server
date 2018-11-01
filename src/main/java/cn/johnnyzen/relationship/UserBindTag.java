@@ -12,8 +12,8 @@ import javax.persistence.*;
  * @Description: 多对多关系实体表（主要针对：关系表多余字段问题，一般情况下无需设置多余的实体表）
  * @Reference: hibernate多对多之中间表有多个字段 https://blog.csdn.net/u014038534/article/details/50153317
  */
-@Entity
-@Table(name = "r_user_bind_tag")
+//@Entity
+//@Table(name = "r_user_bind_tag")
 //在hibernate中同一张表里面存在多个主键，必须要实现序列化接口(Serializable )
 public class UserBindTag implements java.io.Serializable {
     @Id

@@ -1,12 +1,9 @@
 package cn.johnnyzen.word;
 
-import cn.johnnyzen.tag.Tag;
-import cn.johnnyzen.user.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import cn.johnnyzen.newWord.NewWord;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * @IDE: Created by IntelliJ IDEA.
@@ -22,23 +19,34 @@ public class Word {
     @Column(name="pk_word_id")
     private Integer id;
 
-    private String word;
+    @Column(nullable = false, unique = true)
+    private String englishWord;
 
-    @JsonIgnore
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    @JoinTable(
-            name="r_user_focus_word",
-            joinColumns={@JoinColumn(name="fk_ufw_user_id")},
-            inverseJoinColumns={@JoinColumn(name="fk_ufw_word_id")})
-    private Set<User> users = new HashSet<User>();;
+    @Column(nullable = false)
+    private String chineseTranslate;
 
-    @JsonIgnore
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    @JoinTable(
-            name="r_word_tag_tag",
-            joinColumns={@JoinColumn(name="fk_wtt_word_id")},
-            inverseJoinColumns={@JoinColumn(name="fk_wtt_tag_id")})
-    private Set<Tag> tags = new HashSet<Tag>();
+    @OneToMany(mappedBy = "word")
+    private Collection<NewWord> newWords;
+
+    //临时展示给前端的数据，如：遗忘次数、遗忘天数等
+    @Transient
+    private String tmpData;
+
+//    @JsonIgnore
+//    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name="r_user_focus_word",
+//            joinColumns={@JoinColumn(name="fk_ufw_user_id")},
+//            inverseJoinColumns={@JoinColumn(name="fk_ufw_word_id")})
+//    private Set<User> users = new HashSet<User>();;
+
+//    @JsonIgnore
+//    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name="r_word_tag_tag",
+//            joinColumns={@JoinColumn(name="fk_wtt_word_id")},
+//            inverseJoinColumns={@JoinColumn(name="fk_wtt_tag_id")})
+//    private Set<Tag> tags = new HashSet<Tag>();
 
     public Integer getId() {
         return id;
@@ -48,37 +56,61 @@ public class Word {
         this.id = id;
     }
 
-    public String getWord() {
-        return word;
+    public String getEnglishWord() {
+        return englishWord;
     }
 
-    public void setWord(String word) {
-        this.word = word;
+    public void setEnglishWord(String englishWord) {
+        this.englishWord = englishWord;
     }
 
-    public Set<User> getUsers() {
-        return users;
+    public String getChineseTranslate() {
+        return chineseTranslate;
     }
 
-    public void setUsers(Set<User> users) {
-        this.users = users;
+    public void setChineseTranslate(String chineseTranslate) {
+        this.chineseTranslate = chineseTranslate;
     }
 
-    public Set<Tag> getTags() {
-        return tags;
+    public Collection<NewWord> getNewWords() {
+        return newWords;
     }
 
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
+    public void setNewWords(Collection<NewWord> newWords) {
+        this.newWords = newWords;
     }
+
+    public String getTmpData() {
+        return tmpData;
+    }
+
+    public void setTmpData(String tmpData) {
+        this.tmpData = tmpData;
+    }
+
+    //    public Set<User> getUsers() {
+//        return users;
+//    }
+//
+//    public void setUsers(Set<User> users) {
+//        this.users = users;
+//    }
+//
+//    public Set<Tag> getTags() {
+//        return tags;
+//    }
+//
+//    public void setTags(Set<Tag> tags) {
+//        this.tags = tags;
+//    }
 
     @Override
     public String toString() {
         return "Word{" +
-                "id=" + id +
-                ", word='" + word + '\'' +
-                ", users=" + users +
-                ", tags=" + tags +
+                "\n\tid=" + id +
+                ",\n\t englishWord='" + englishWord + '\'' +
+                ",\n\t chineseTranslate=" + chineseTranslate + '\'' +
+                ",\n\t tmpData=" + tmpData + '\'' +
                 '}';
     }
 }

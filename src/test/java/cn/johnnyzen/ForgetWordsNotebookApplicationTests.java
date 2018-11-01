@@ -11,6 +11,7 @@ public class ForgetWordsNotebookApplicationTests {
 
 	@Test
 	public void contextLoads() {
+
 	}
 
 }

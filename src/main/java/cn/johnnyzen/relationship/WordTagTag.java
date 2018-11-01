@@ -12,8 +12,8 @@ import java.io.Serializable;
  * @Date: 2018/10/6  23:18:26
  * @Description: ...
  */
-@Entity
-@Table(name = "r_word_tag_tag")
+//@Entity
+//@Table(name = "r_word_tag_tag")
 //在hibernate中同一张表里面存在多个主键，必须要实现序列化接口(Serializable )
 public class WordTagTag implements Serializable{
     @Id

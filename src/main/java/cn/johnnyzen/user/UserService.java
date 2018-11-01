@@ -6,13 +6,11 @@ import cn.johnnyzen.util.reuslt.ResultCode;
 import cn.johnnyzen.util.reuslt.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -112,11 +110,19 @@ public class UserService {
         Map<String, User> users = null;
         users = this.fetchLoginUsersMapFromSession(request.getSession());
         if(users != null){
+//            for(User user:users.values()){
+//                System.out.println("[UserService.findOneByLoginUsersMap] " + user);
+//            }
+
             User user = null;
 
             String token = null;
             token = request.getParameter("token");
-            logger.info(logPrefix + "token:" + token);
+            logger.info(logPrefix + "token:" + token + " <from HttpServletRequest>");
+            if(token == null){
+                token = request.getHeader("token");
+                logger.info(logPrefix + "token:" + token + " <from HttpServletRequest.Header>");
+            }
             if(token != null){
                 user = users.get(token); //可能为null，也可能为user真
                 if(user != null){
