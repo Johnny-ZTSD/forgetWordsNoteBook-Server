@@ -72,13 +72,14 @@ public class NewWordController {
         ObjectMapper mapper = new ObjectMapper();
         String json = null;
         try {
-           mapper.writeValueAsString(userNewWords.toArray());
+           json = mapper.writeValueAsString(userNewWords.toArray());
+           System.out.println(logPrefix + "json转换成功！");
         } catch (JsonProcessingException e) {
             System.out.println(logPrefix + "json转换失败！");
             e.printStackTrace();
         }
 
-        return ResultUtil.success("查词成功！", json);
+        return ResultUtil.success("查词成功！", userNewWords);
 //        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.searchWords] 接口暂未开发");
     }
 

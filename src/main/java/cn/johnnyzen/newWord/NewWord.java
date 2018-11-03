@@ -1,15 +1,11 @@
 package cn.johnnyzen.newWord;
 
-/**
- * @IDE: Created by IntelliJ IDEA.
- * @Author: 千千寰宇
- * @Date: 2018/11/1  17:56:22
- * @Description: ...
- */
 
 import cn.johnnyzen.user.User;
 import cn.johnnyzen.word.Word;
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -23,6 +19,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "r_user_focus_word")
+@JsonIgnoreProperties(value={"word"})
 public class NewWord {
 
     private Integer id;
@@ -131,6 +128,7 @@ public class NewWord {
         return result;
     }
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "fk_ufw_user_id", referencedColumnName = "pk_user_id", nullable = false)
     public User getUser() {
@@ -141,6 +139,7 @@ public class NewWord {
         this.user = user;
     }
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "fk_ufw_word_id", referencedColumnName = "pk_word_id", nullable = false)
     public Word getWord() {
@@ -160,8 +159,8 @@ public class NewWord {
                 ",\n\t lastForgotDatetime=" + lastForgotDatetime +
                 ",\n\t forgetCount=" + forgetCount +
                 ",\n\t forgetRate=" + forgetRate +
-                ",\n\t user=" + user +
-                ",\n\t word=" + word +
+//                ",\n\t user=" + user +
+//                ",\n\t word=" + word +
                 '}';
     }
 }

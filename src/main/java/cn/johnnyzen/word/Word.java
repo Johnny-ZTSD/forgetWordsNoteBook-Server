@@ -1,7 +1,7 @@
 package cn.johnnyzen.word;
 
 import cn.johnnyzen.newWord.NewWord;
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -26,8 +26,8 @@ public class Word {
     @Column(nullable = false)
     private String chineseTranslate;
 
-    @OneToMany(mappedBy = "word")
     @JsonIgnore
+    @OneToMany(mappedBy = "word")
     private Collection<NewWord> newWords;
 
     //临时展示给前端的数据，如：遗忘次数、遗忘天数等
@@ -109,7 +109,7 @@ public class Word {
     @Override
     public String toString() {
         return "Word{" +
-                "\n\tid=" + id +
+                "\n\t id=" + id +
                 ",\n\t englishWord='" + englishWord + '\'' +
                 ",\n\t chineseTranslate=" + chineseTranslate + '\'' +
                 ",\n\t tmpData=" + tmpData + '\'' +
