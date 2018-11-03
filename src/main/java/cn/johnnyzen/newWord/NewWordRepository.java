@@ -28,6 +28,16 @@ public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
             nativeQuery = true)
     public Collection<NewWord> findNewWordsLikeByUserIdAndEnglishWord(@Param("userId") Integer userId, @Param("englishWord") String englishWord);
 
+    @Query(value =
+            " SELECT *" +
+                    " FROM ( " + //嵌套查询
+                    " SELECT * " + //连接查询
+                    " FROM tb_word AS word, r_user_focus_word AS newWord,tb_user AS usr" +
+                    " WHERE word.pk_word_id = newWord.fk_ufw_word_id AND usr.pk_user_id = newWord.fk_ufw_user_id ) AS tb" +
+                    " WHERE tb.pk_user_id = :userId AND tb.english_word = :englishWord ", //模糊查询
+            nativeQuery = true)
+    public NewWord findDistinctFirstByUserIdAndEnglishWord(@Param("userId") Integer userId, @Param("englishWord") String englishWord);
+
     @Query("select newWord from NewWord newWord where newWord.user.email = :email")
     public Collection<NewWord> findAllByEmail(@Param("email") String email);
 

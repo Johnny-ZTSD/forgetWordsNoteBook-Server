@@ -225,6 +225,8 @@ public class UserService {
                 String loginToken = null;
                 loginToken = request.getParameter("token");//不可能不存在
 
+                logger.info(logPrefix + "user:" + user.toString());//test
+
                 //计算相差的分钟数 + 刷新用户最近活跃时间
                 Calendar lastActivateDateTime = user.getLastActiveDateTime();
                 long diferenceMinutes = (Calendar.getInstance().getTimeInMillis() - lastActivateDateTime.getTimeInMillis()) / (60 * 1000);

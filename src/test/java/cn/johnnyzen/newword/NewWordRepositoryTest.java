@@ -41,7 +41,7 @@ public class NewWordRepositoryTest {
         }
     }
 
-    @Test
+    //@Test
     public void testFindNewWordsLikeByUserIdAndEnglishWord(){
         String englishWord = "ch"; //fam
         Collection<NewWord> newWords = newWordRepository.findNewWordsLikeByUserIdAndEnglishWord(1, englishWord);
@@ -52,6 +52,14 @@ public class NewWordRepositoryTest {
         }
     }
 
+    @Test
+    public void testFindDistinctFirstByUserIdAndEnglishWord(){
+        NewWord newWord = null;
+        String englishWord = "family";
+        newWord = newWordRepository.findDistinctFirstByUserIdAndEnglishWord(1, englishWord);
+        System.out.println("NewWordRepository.testFindDistinctFirstByUserIdAndEnglishWord:");
+        System.out.println(newWord.toString());
+    }
 
 //    @Test ok
     public void testFindAllByUser(){

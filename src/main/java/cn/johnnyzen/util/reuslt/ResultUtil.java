@@ -10,37 +10,30 @@ package cn.johnnyzen.util.reuslt;
 public class ResultUtil {
 
     public static Result success(Object object){
-        Result result = new Result();
-        result.setCode(ResultCode.SUCCESS);
-        result.setMessage("request success!");
-        result.setData(object);
-        return result;
+        return template(ResultCode.SUCCESS, "request success!", object);
     }
 
     public static Result success(String message){
-        Result result = new Result();
-        result.setCode(ResultCode.SUCCESS);
-        result.setMessage(message);
-        result.setData(null);
-        return result;
+        return template(ResultCode.SUCCESS, message, null);
     }
 
     public static Result success(String message, Object object){
-        Result result = new Result();
-        result.setCode(ResultCode.SUCCESS);
-        result.setMessage(message);
-        result.setData(object);
-        return result;
+        return template(ResultCode.SUCCESS, message, object);
     }
 
     public static Result success() {
-        return success(null);
+        return success("request success!");
     }
 
     public static Result error(ResultCode code, String msg) {
+        return template(code, msg, null);
+    }
+
+    public static Result template(ResultCode code, String message, Object object){
         Result result = new Result();
         result.setCode(code);
-        result.setMessage(msg);
-        return result;
+        result.setMessage(message);
+        result.setData(object);
+        return  result;
     }
 }

@@ -51,7 +51,36 @@ public class NewWordService {
     }
 
     /*
-     * 模糊查找用户的所有生词。[主要用于查词时]
+     * 查找用户的所有生词。
+     *  1.通过token，查找用户信息
+     *  2.通过用户id查询用户的所有生词。
+     *
+     * @return Collection<Word>
+     */
+    public Collection<Word> findAllWordsOfUserByRequest(HttpServletRequest request){
+        String logPrefix = "[NewWordService.findAllWordsOfUserByRequest] ";
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request);
+        //user登陆校验已通过过滤器实现，无需再校验。
+
+        Collection<NewWord> newWords = null;
+        newWords = newWordRepository.findAllByUserId(user.getId());
+        if(newWords == null){
+            logger.info(logPrefix + "该用户(" + user.getEmail() + ")暂无任何生词！(数据库无记录)");
+            return null;
+        }
+
+        Collection<Word> words = new ArrayList<Word>();
+        for(NewWord item:newWords){
+            words.add(item.getWord());
+        }
+
+        logger.info(logPrefix + "该用户(" + user.getEmail() + ")有生词！(数据库有记录)");
+        return words;
+    }
+
+    /*
+     * 模糊查找用户的所有生词。[主要用于查词时，查某些类似单词]
      *  1.通过token，查找用户信息
      *  2.通过用户id和检索的单词模糊查询用户的所有生词。
      *
@@ -82,33 +111,25 @@ public class NewWordService {
     }
 
     /*
-     * 查找用户的所有生词。
+     * 精确查找用户的所有生词。[主要用于查某一词时]
      *  1.通过token，查找用户信息
-     *  2.通过用户id查询用户的所有生词。
+     *  2.通过用户id和检索的单词精确查询用户的某个生词。
      *
+     * @param search
+     * @param request [need:token]
      * @return Collection<Word>
      */
-    public Collection<Word> findAllWordsOfUserByRequest(HttpServletRequest request){
-        String logPrefix = "[NewWordService.findAllWordsOfUserByRequest] ";
+    public NewWord findOneOfUserByExactSearch(HttpServletRequest request,String englishWord){
+        String logPrefix = "[NewWordService.findAllWordsOfUserByFuzzySearch] ";
         User user = null;
         user = userService.findOneByLoginUsersMap(request);
         //user登陆校验已通过过滤器实现，无需再校验。
 
-        Collection<NewWord> newWords = null;
-        newWords = newWordRepository.findAllByUserId(user.getId());
-        if(newWords == null){
-            logger.info(logPrefix + "该用户(" + user.getEmail() + ")暂无任何生词！(数据库无记录)");
-            return null;
-        }
-
-        Collection<Word> words = new ArrayList<Word>();
-        for(NewWord item:newWords){
-            words.add(item.getWord());
-        }
-
-        logger.info(logPrefix + "该用户(" + user.getEmail() + ")有生词！(数据库有记录)");
-        return words;
+        NewWord newWords = null;
+        newWords = newWordRepository.findDistinctFirstByUserIdAndEnglishWord(user.getId(), englishWord);
+        return newWords; // null or entity object
     }
+
 
     public List<Word> translate(String englishWord) throws IOException {
         String logPrefix = "[NewWordService.translate] ";

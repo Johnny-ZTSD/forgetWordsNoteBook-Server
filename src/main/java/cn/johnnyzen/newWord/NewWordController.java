@@ -8,6 +8,9 @@ import cn.johnnyzen.word.Word;
 import cn.johnnyzen.word.WordService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,8 +63,8 @@ public class NewWordController {
                 userNewWords.addAll(thirdWords); //全部集中到userNewWords集合中处理
             }
             if(newWordService == null){ //如果整个结果集都为空
-                logger.warning(logPrefix + "search result:null.");
-                return ResultUtil.error(ResultCode.FAIL, "查词无结果。");
+                logger.info(logPrefix + "result of search word(" + search + ") :success but null.");
+                return ResultUtil.success("查词成功，但无结果。");
             }
 
             words = new HashMap<String, Word>();//此时words必不为空
@@ -89,16 +92,35 @@ public class NewWordController {
         }
 
         //[notice] must use jackson version:com.fasterxml.jackson,else it will pose error.
-        logger.warning(logPrefix + "search result:success.");
+        logger.warning(logPrefix + "result of search word(" + search + ") :success.");
         return ResultUtil.success("查词成功！", words);
     }
 
+    /*
+     * 查看某生词
+     *  1.精确查找
+     *  2.必须为用户的生词
+     */
     @RequestMapping(value = "/viewWord/api")
     @ResponseBody
     public Result viewWord(HttpServletRequest request,
                               @RequestParam(value = "englishWord",required = true) String englishWord,
                               @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewWord] 接口暂未开发");
+        String logPrefix = "[UserService.viewWord()] ";
+        NewWord newWord = null;
+        newWord = newWordService.findOneOfUserByExactSearch(request, englishWord);
+        if(newWord == null) {
+            logger.warning(logPrefix + "result of search word(" + englishWord + ") :success but null.");
+            return ResultUtil.success("查词成功，但无匹配结果。");
+        } else {
+            logger.warning(logPrefix + "result of search word(" + englishWord + ") :success.");
+
+            //newWord部分字段由于其他方法的原因需要被jackson屏蔽
+            //此处设置视图Bean，根据用户所需进行字段可视化调整
+            ViewWord viewWord = new ViewWord(newWord);
+            return ResultUtil.success("查词成功!", viewWord);
+        }
+//        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewWord] 接口暂未开发");
     }
 
     @RequestMapping(value = "/saveNewWord/api")

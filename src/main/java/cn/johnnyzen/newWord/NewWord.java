@@ -4,6 +4,7 @@ package cn.johnnyzen.newWord;
 import cn.johnnyzen.user.User;
 import cn.johnnyzen.word.Word;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -129,6 +130,7 @@ public class NewWord {
     }
 
     @JsonBackReference
+    @JsonFilter("NewWord-user")
     @ManyToOne
     @JoinColumn(name = "fk_ufw_user_id", referencedColumnName = "pk_user_id", nullable = false)
     public User getUser() {
@@ -140,6 +142,7 @@ public class NewWord {
     }
 
     @JsonBackReference
+    @JsonFilter("NewWord-word")
     @ManyToOne
     @JoinColumn(name = "fk_ufw_word_id", referencedColumnName = "pk_word_id", nullable = false)
     public Word getWord() {
