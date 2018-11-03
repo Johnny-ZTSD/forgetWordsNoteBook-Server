@@ -51,6 +51,37 @@ public class NewWordService {
     }
 
     /*
+     * 模糊查找用户的所有生词。[主要用于查词时]
+     *  1.通过token，查找用户信息
+     *  2.通过用户id和检索的单词模糊查询用户的所有生词。
+     *
+     * @param search
+     * @param request [need:token]
+     * @return Collection<Word>
+     */
+    public Collection<Word> findAllWordsOfUserByFuzzySearch(HttpServletRequest request,String englishWord){
+        String logPrefix = "[NewWordService.findAllWordsOfUserByFuzzySearch] ";
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request);
+        //user登陆校验已通过过滤器实现，无需再校验。
+
+        Collection<NewWord> newWords = null;
+        newWords = newWordRepository.findNewWordsLikeByUserIdAndEnglishWord(user.getId(), englishWord);
+        if(newWords == null){
+            logger.info(logPrefix + "该用户(" + user.getEmail() + ")暂无任何生词！(数据库无记录)");
+            return null;
+        }
+
+        Collection<Word> words = new ArrayList<Word>();
+        for(NewWord item:newWords){
+            words.add(item.getWord());
+        }
+
+        logger.info(logPrefix + "该用户(" + user.getEmail() + ")有生词！(数据库有记录)");
+        return words;
+    }
+
+    /*
      * 查找用户的所有生词。
      *  1.通过token，查找用户信息
      *  2.通过用户id查询用户的所有生词。

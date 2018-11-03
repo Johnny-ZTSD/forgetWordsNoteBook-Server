@@ -3,7 +3,6 @@ package cn.johnnyzen.newword;
 import cn.johnnyzen.newWord.NewWord;
 import cn.johnnyzen.newWord.NewWordRepository;
 import cn.johnnyzen.user.User;
-import cn.johnnyzen.word.Word;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * @IDE: Created by IntelliJ IDEA.
@@ -34,7 +32,7 @@ public class NewWordRepositoryTest {
         }
     }
 
-    @Test
+    //@Test
     public void testFindAllByEmail(){
         Collection<NewWord> newWords = newWordRepository.findAllByEmail("1125418540@qq.com");
         System.out.println("NewWordRepository.testFindAllByEmail:");
@@ -42,6 +40,18 @@ public class NewWordRepositoryTest {
             System.out.println(item.toString());
         }
     }
+
+    @Test
+    public void testFindNewWordsLikeByUserIdAndEnglishWord(){
+        String englishWord = "ch"; //fam
+        Collection<NewWord> newWords = newWordRepository.findNewWordsLikeByUserIdAndEnglishWord(1, englishWord);
+        System.out.println("NewWordRepository.testFindNewWordsLikeByUserIdAndEnglishWord:");
+        for(NewWord item : newWords){
+            System.out.println(item.toString());
+            System.out.println(item.getWord().toString());
+        }
+    }
+
 
 //    @Test ok
     public void testFindAllByUser(){

@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -52,35 +50,47 @@ public class NewWordController {
         Collection<Word> thirdWords = null; //第三方单词
         Collection<Word> userNewWords = null; //用户生词
 
+        Map<String, Word> words = null; //已英文单词未主键，使用map对两集合的英文单词去重
+
         try {
             thirdWords = newWordService.translate(search);
-            userNewWords = newWordService.findAllWordsOfUserByRequest(request);
-            userNewWords.addAll(thirdWords);
+            userNewWords = newWordService.findAllWordsOfUserByFuzzySearch(request, search);
+
+            if(thirdWords != null){ //不判断时，会导致运行时错误
+                userNewWords.addAll(thirdWords); //全部集中到userNewWords集合中处理
+            }
+            if(newWordService == null){ //如果整个结果集都为空
+                logger.warning(logPrefix + "search result:null.");
+                return ResultUtil.error(ResultCode.FAIL, "查词无结果。");
+            }
+
+            words = new HashMap<String, Word>();//此时words必不为空
+            Iterator<Word> iter = userNewWords.iterator();
+            while(iter.hasNext()){
+                Word word = iter.next();
+                /*
+                    如果map中已含有该单词:
+                        查看map中的该英文单词或者当前的单词是否id不为0;
+                        如果其中任意有一个不为0，则该单词的id变更为该非0id
+                        即：相当于更新当前英文单词的id
+                 */
+                if(words.containsKey(word.getEnglishWord())){
+                    Word mapWord = words.get(word.getEnglishWord());
+                    Integer id = mapWord.getId() != 0 ? mapWord.getId() : word.getId();
+                    mapWord.setId(id);
+                    words.put(mapWord.getEnglishWord(), mapWord);
+                } else { //map中不含当前单词
+                    words.put(word.getEnglishWord(), word);
+                }
+            }
         } catch (IOException e) {//第三方API翻译异常
             logger.warning(logPrefix + " thrid-api failed to tranlate : "+ search);
             e.printStackTrace();
         }
 
-        System.out.println(logPrefix + "userNewWords:"); //test
-        for(Word item : userNewWords){//test
-            System.out.println(item.toString());
-        }
-        if(userNewWords == null){
-            return ResultUtil.error(ResultCode.FAIL, "查词无结果。");
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        String json = null;
-        try {
-           json = mapper.writeValueAsString(userNewWords.toArray());
-           System.out.println(logPrefix + "json转换成功！");
-        } catch (JsonProcessingException e) {
-            System.out.println(logPrefix + "json转换失败！");
-            e.printStackTrace();
-        }
-
-        return ResultUtil.success("查词成功！", userNewWords);
-//        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.searchWords] 接口暂未开发");
+        //[notice] must use jackson version:com.fasterxml.jackson,else it will pose error.
+        logger.warning(logPrefix + "search result:success.");
+        return ResultUtil.success("查词成功！", words);
     }
 
     @RequestMapping(value = "/viewWord/api")

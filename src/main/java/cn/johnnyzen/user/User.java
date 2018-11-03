@@ -1,6 +1,7 @@
 package cn.johnnyzen.user;
 
 import cn.johnnyzen.newWord.NewWord;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.Calendar;
@@ -26,6 +27,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
     private String password;
 
     /* F:女;M:男 */
