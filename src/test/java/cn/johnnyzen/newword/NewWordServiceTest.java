@@ -2,6 +2,7 @@ package cn.johnnyzen.newword;
 
 import cn.johnnyzen.newWord.NewWord;
 import cn.johnnyzen.newWord.NewWordRepository;
+import cn.johnnyzen.newWord.NewWordService;
 import cn.johnnyzen.util.request.RequestProperties;
 import cn.johnnyzen.util.request.RequestUtil;
 import cn.johnnyzen.word.ThirdWordResult;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
@@ -35,6 +37,17 @@ public class NewWordServiceTest {
     @Autowired
     private RequestUtil requestUtil;
 
+    @Autowired
+    private NewWordService newWordService;
+
+    @Test
+    public void testCalculateForgetRate(){
+        String logPrefix = "[NewWordServiceTest.testCalculateForgetRate] ";
+        Calendar now = Calendar.getInstance();
+        double rate = newWordService.calculateForgetRate(now, now, 11);
+        System.out.println(logPrefix + "rate:" + rate);
+    }
+
     //@Test
     public void testFindAllByEmail(){
         Collection<NewWord> newWords = newWordRepository.findAllByEmail("1125418540@qq.com");
@@ -43,12 +56,12 @@ public class NewWordServiceTest {
         }
     }
 
-    @Test
+//    @Test
     public void testRequestPropeties(){
         System.out.println(requestProperties.toString());
     }
 
-    @Test
+//    @Test
     public void testRequestHtmlDocument() throws IOException {
         String englishWord = "family";
         StringBuilder url = new StringBuilder("http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=");

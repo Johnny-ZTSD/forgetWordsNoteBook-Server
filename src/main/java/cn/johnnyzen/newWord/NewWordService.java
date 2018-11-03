@@ -3,6 +3,7 @@ package cn.johnnyzen.newWord;
 import cn.johnnyzen.user.User;
 import cn.johnnyzen.user.UserRepository;
 import cn.johnnyzen.user.UserService;
+import cn.johnnyzen.util.datetime.DatetimeUtil;
 import cn.johnnyzen.util.request.RequestUtil;
 import cn.johnnyzen.word.ThirdWordResult;
 import cn.johnnyzen.word.Word;
@@ -16,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
@@ -130,6 +133,73 @@ public class NewWordService {
         return newWords; // null or entity object
     }
 
+    /*
+     * @method 增添生词记录
+     *  1.通过englishWord，查询数据库word表中是否存在该单词记录
+     *      如果无，新增该单词记录到word表中
+     *      2.通过englishWord，调用第三方翻译接口，获取翻译结果，封装为word结果集
+     *          如果第三方翻译或者接口调用失败，返回1
+     *  3.查询用户是否已有该生词记录
+     *          如果已有该记录：
+     *              插入生词记录失败，但添加生词请求属于成功，返回2
+     *          如果无：
+     *              通过request[token]获取用户信息，向NewWord(表：r_user_focus_word)中插入生词关系记录。
+     *              返回3
+     *  @param englishWord
+     *  @param request [use: token]
+     *
+     *  @author johnny
+     */
+    public int saveNewWord(HttpServletRequest request,String englishWord){
+        String logPrefix = "[NewWordService.saveNewWord] ";
+
+        Collection<Word> dbWords = null;
+        dbWords = wordRepository.findDistinctFirstByEnglishWord(englishWord);
+        if(dbWords.size() < 1){//数据库无记录
+            List<Word> transWords = null;
+            try {
+                transWords = this.translate(englishWord);//翻译该英文词汇
+            } catch (IOException e) {
+                logger.warning(logPrefix + "translate word(" + englishWord + ") failed.<IOException>");
+                e.printStackTrace();
+            }
+            if(transWords == null){//translate is null or error
+                logger.warning(logPrefix + "translate word(" + englishWord + ") is null or error");
+                return 1;
+            }
+            wordRepository.save(transWords.get(0)); //插入word数据到word表中
+        }
+
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request);
+        Word insertingWord = null;
+        insertingWord = wordRepository.findDistinctFirstByEnglishWord(englishWord).iterator().next(); //通过上面步骤，数据库word表中已必然存在该单词；从数据库word表中查询该单词，以便获取单词的id,保证生词关系插入成功
+        NewWord dbWordOfUser = null;
+        dbWordOfUser = newWordRepository.findDistinctFirstByUserIdAndEnglishWord(user.getId(), englishWord);
+        if(dbWordOfUser != null){//数据库中已存在该生词关系
+            logger.info(logPrefix + "数据库中已存在该生词关系！");
+            return 2;
+        } else {
+            NewWord newWord = new NewWord();
+
+            Calendar now = Calendar.getInstance();
+            Timestamp nowTs = DatetimeUtil.calendarToTimestamp(now);
+
+            //设置初始化数据
+            newWord.setUser(user);
+            newWord.setWord(insertingWord);
+
+            newWord.setCreateNewWordDatetime(nowTs);
+            newWord.setLastForgotDatetime(nowTs);
+            newWord.setLastStoredDatetime(nowTs);
+            newWord.setForgetCount((byte) 1);
+            newWord.setForgetRate(calculateForgetRate(1,1, 1));
+
+            newWordRepository.save(newWord);
+            logger.info(logPrefix + "数据库中未存在该生词关系，且插入数据成功！");
+            return 3;
+        }
+    }
 
     public List<Word> translate(String englishWord) throws IOException {
         String logPrefix = "[NewWordService.translate] ";
@@ -162,5 +232,40 @@ public class NewWordService {
         } else{
             return null;
         }
+    }
+
+
+    /*
+     * 计算遗忘权值
+     * <对double calculateForgetRate(int,int,int)的重载>
+     *
+     * @param lastForgetDate(距最近遗忘的天数) as nDate
+     * @param lastStoredDate(距最近记忆的天数) as mDate
+     * @param forgetCount int as s
+     */
+    public double calculateForgetRate(Calendar lastForgetDate,Calendar lastStoredDate,int forgetCount){
+        Calendar today = Calendar.getInstance();
+        int lastForgetDays = (int) ((today.getTimeInMillis() - lastForgetDate.getTimeInMillis()) / (60*1000*60*24)) + 1;//unit:day 60*1000[minute] 60*1000*60[hour]
+        int lastStoredDays = (int) ((today.getTimeInMillis() - lastStoredDate.getTimeInMillis()) / (60*1000*60*24)) + 1;
+        return calculateForgetRate(lastForgetDays, lastStoredDays, forgetCount);
+    }
+
+    /*
+     * 计算遗忘权值
+     *      单位：天
+     *      r = 10/n + 7*s -15/m
+     *
+     * @param lastForgetDays(距最近遗忘的天数,not 0) int as n
+     * @param lastStoredDays(距最近记忆的天数, not 0) int as m
+     * @param forgetCount int as s
+     */
+    public double calculateForgetRate(int lastForgetDays, int lastStoredDays, int forgetCount){
+        if(lastForgetDays == 0){
+            lastForgetDays = 1;
+        }
+        if(lastStoredDays == 0){
+            lastStoredDays = 1;
+        }
+        return 10/lastForgetDays + 7*forgetCount - 15/lastStoredDays;
     }
 }

@@ -39,6 +39,7 @@ public class NewWord {
     private Word word;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "pk_ufw_id", nullable = false)
     public Integer getId() {
         return id;

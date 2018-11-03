@@ -39,17 +39,17 @@ public class NewWordController {
     private UserService userService;
 
     /*
+     * 查词
      * @author johnny
      * @param search
      * @param token
-     *
      */
     @RequestMapping(value = "/searchWords/api")
     @ResponseBody
     public Result searchWords(HttpServletRequest request,
                               @RequestParam(value = "search",required = true) String search,
                               @RequestParam(value = "token",required = true) String token){
-        String logPrefix = "[UserService.searchWords()] ";
+        String logPrefix = "[NewWordController.searchWords()] ";
         Collection<Word> thirdWords = null; //第三方单词
         Collection<Word> userNewWords = null; //用户生词
 
@@ -100,13 +100,17 @@ public class NewWordController {
      * 查看某生词
      *  1.精确查找
      *  2.必须为用户的生词
+     * @author johnny
+     * @param request
+     * @param englishWord
+     * @param token
      */
     @RequestMapping(value = "/viewWord/api")
     @ResponseBody
     public Result viewWord(HttpServletRequest request,
                               @RequestParam(value = "englishWord",required = true) String englishWord,
                               @RequestParam(value = "token",required = true) String token){
-        String logPrefix = "[UserService.viewWord()] ";
+        String logPrefix = "[NewWordController.viewWord()] ";
         NewWord newWord = null;
         newWord = newWordService.findOneOfUserByExactSearch(request, englishWord);
         if(newWord == null) {
@@ -120,16 +124,32 @@ public class NewWordController {
             ViewWord viewWord = new ViewWord(newWord);
             return ResultUtil.success("查词成功!", viewWord);
         }
-//        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewWord] 接口暂未开发");
     }
 
+    /*
+     * 新增生词
+     * @author johnny
+     * @param request
+     * @param englishWord
+     */
     @RequestMapping(value = "/saveNewWord/api")
     @ResponseBody
     public Result saveNewWord(HttpServletRequest request,
                            @RequestParam(value = "englishWord",required = true) String englishWord,
-                           @RequestParam(value = "chineseTranslate",required = true) String chineseTranslate,
+//                           @RequestParam(value = "chineseTranslate",required = true) String chineseTranslate,
                            @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.saveNewWord] 接口暂未开发");
+        String logPrefix = "[NewWordController.saveNewWord] ";
+        int handle = newWordService.saveNewWord(request, englishWord);
+        if(handle == 3){
+            logger.info(logPrefix + "数据库中未存在该生词关系，且插入数据成功！");
+            return ResultUtil.success("添加生词成功!");
+        } else if(handle == 2){
+            logger.info(logPrefix + "数据库中已存在该生词关系！");
+            return ResultUtil.success("添加的生词已存在!");
+        } else {//1
+            logger.warning(logPrefix + "translate word(" + englishWord + ") is null or error");
+            return ResultUtil.error(ResultCode.FAIL, "因服务器内部原因，添加生词失败！");
+        }
     }
 
     @RequestMapping(value = "/tagStoredWord/api")

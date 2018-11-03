@@ -23,7 +23,7 @@ public class ViewWord {
     /* 单词ID */
     private Integer wordId;
     private String englishWord;
-    private String chineseWord;
+    private String chineseTranslate;
 
     /* 用户ID */
     private Integer userId;
@@ -45,7 +45,7 @@ public class ViewWord {
 
         this.setWordId(newWord.getWord().getId());
         this.setEnglishWord(newWord.getWord().getEnglishWord());
-        this.setChineseWord(newWord.getWord().getChineseTranslate());
+        this.setChineseTranslate(newWord.getWord().getChineseTranslate());
 
         this.setUserId(newWord.getUser().getId());
         this.setUsername(newWord.getUser().getUsername());
@@ -116,12 +116,12 @@ public class ViewWord {
         this.englishWord = englishWord;
     }
 
-    public String getChineseWord() {
-        return chineseWord;
+    public String getChineseTranslate() {
+        return chineseTranslate;
     }
 
-    public void setChineseWord(String chineseWord) {
-        this.chineseWord = chineseWord;
+    public void setChineseTranslate(String chineseTranslate) {
+        this.chineseTranslate = chineseTranslate;
     }
 
     public Integer getUserId() {
@@ -159,7 +159,7 @@ public class ViewWord {
                 ",\n\t forgetRate=" + forgetRate +
                 ",\n\t wordId='" + wordId + '\'' +
                 ",\n\t englishWord='" + englishWord + '\'' +
-                ",\n\t chineseWord='" + chineseWord + '\'' +
+                ",\n\t chineseTranslate='" + chineseTranslate + '\'' +
                 ",\n\t userId='" + userId + '\'' +
                 ",\n\t username='" + username + '\'' +
                 ",\n\t email='" + email + '\'' +

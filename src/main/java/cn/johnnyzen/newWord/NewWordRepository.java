@@ -2,6 +2,7 @@ package cn.johnnyzen.newWord;
 
 import cn.johnnyzen.user.User;
 import cn.johnnyzen.word.Word;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,6 +29,10 @@ public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
             nativeQuery = true)
     public Collection<NewWord> findNewWordsLikeByUserIdAndEnglishWord(@Param("userId") Integer userId, @Param("englishWord") String englishWord);
 
+    /* 对指定用户(userId)的所有生词中查询指定单词(englishWord)
+     * @param userId
+     * @param englishWord
+     */
     @Query(value =
             " SELECT *" +
                     " FROM ( " + //嵌套查询
