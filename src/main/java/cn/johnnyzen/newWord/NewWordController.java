@@ -4,6 +4,7 @@ import cn.johnnyzen.user.UserService;
 import cn.johnnyzen.util.reuslt.Result;
 import cn.johnnyzen.util.reuslt.ResultCode;
 import cn.johnnyzen.util.reuslt.ResultUtil;
+import cn.johnnyzen.word.Word;
 import cn.johnnyzen.word.WordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -25,17 +30,44 @@ public class NewWordController {
     private static final Logger logger = Logger.getLogger(NewWordController.class.getName());
 
     @Autowired
-    private WordService wordService;
+    private NewWordService newWordService;
 
     @Autowired
     private UserService userService;
 
+    /*
+     * @author johnny
+     * @param search
+     * @param token
+     *
+     */
     @RequestMapping(value = "/searchWords/api")
     @ResponseBody
     public Result searchWords(HttpServletRequest request,
                               @RequestParam(value = "search",required = true) String search,
                               @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.searchWords] 接口暂未开发");
+        String logPrefix = "[UserService.searchWords()] ";
+        Collection<Word> thirdWords = null; //第三方单词
+        Collection<Word> userNewWords = null; //用户生词
+
+        try {
+            thirdWords = newWordService.translate(search);
+            userNewWords = newWordService.findAllWordsOfUserByRequest(request);
+            userNewWords.addAll(thirdWords);
+        } catch (IOException e) {//第三方API翻译异常
+            logger.warning(logPrefix + " thrid-api failed to tranlate : "+ search);
+            e.printStackTrace();
+        }
+
+        System.out.println(logPrefix + "userNewWords:"); //test
+        for(Word item : userNewWords){//test
+            System.out.println(item.toString());
+        }
+        if(userNewWords == null){
+            return ResultUtil.error(ResultCode.FAIL, "查词无结果。");
+        }
+        return ResultUtil.success("查词成功！", userNewWords);
+//        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.searchWords] 接口暂未开发");
     }
 
     @RequestMapping(value = "/viewWord/api")

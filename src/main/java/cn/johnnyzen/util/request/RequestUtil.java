@@ -51,6 +51,7 @@ public class RequestUtil {
                 .header("Accept-Language", requestProperties.getAcceptLanguage())
                 .header("Set-Cookie", requestProperties.getCookie())
                 .userAgent(requestProperties.getUserAgent())
+                .ignoreContentType(true) //resolve:org.jsoup.UnsupportedMimeTypeException: Unhandled content type. Must be text/*, application/xml, or application/xhtml+xml. Mimetype=application/x-javascript, URL=www.a.com
                 .get();
         return doc;
     }

@@ -9,6 +9,7 @@ package cn.johnnyzen.newWord;
 
 import cn.johnnyzen.user.User;
 import cn.johnnyzen.word.Word;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -32,7 +33,11 @@ public class NewWord {
     private Byte forgetCount;
     /* 遗忘权重指数 */
     private Double forgetRate;
+
+    @JsonIgnore
     private User user;
+
+    @JsonIgnore
     private Word word;
 
     @Id
