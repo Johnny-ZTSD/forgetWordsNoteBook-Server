@@ -6,6 +6,8 @@ import cn.johnnyzen.util.reuslt.ResultCode;
 import cn.johnnyzen.util.reuslt.ResultUtil;
 import cn.johnnyzen.word.Word;
 import cn.johnnyzen.word.WordService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,7 +68,17 @@ public class NewWordController {
         if(userNewWords == null){
             return ResultUtil.error(ResultCode.FAIL, "查词无结果。");
         }
-        return ResultUtil.success("查词成功！", userNewWords);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = null;
+        try {
+           mapper.writeValueAsString(userNewWords.toArray());
+        } catch (JsonProcessingException e) {
+            System.out.println(logPrefix + "json转换失败！");
+            e.printStackTrace();
+        }
+
+        return ResultUtil.success("查词成功！", json);
 //        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.searchWords] 接口暂未开发");
     }
 
