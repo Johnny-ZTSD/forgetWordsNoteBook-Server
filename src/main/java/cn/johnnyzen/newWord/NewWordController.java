@@ -93,7 +93,7 @@ public class NewWordController {
 
         //[notice] must use jackson version:com.fasterxml.jackson,else it will pose error.
         logger.warning(logPrefix + "result of search word(" + search + ") :success.");
-        return ResultUtil.success("查词成功！", words);
+        return ResultUtil.success("查词成功！", words.values());
     }
 
     /*
