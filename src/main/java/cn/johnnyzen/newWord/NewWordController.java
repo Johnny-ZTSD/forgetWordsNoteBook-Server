@@ -1,5 +1,6 @@
 package cn.johnnyzen.newWord;
 
+import cn.johnnyzen.user.UserService;
 import cn.johnnyzen.util.reuslt.Result;
 import cn.johnnyzen.util.reuslt.ResultCode;
 import cn.johnnyzen.util.reuslt.ResultUtil;
@@ -25,6 +26,9 @@ public class NewWordController {
 
     @Autowired
     private WordService wordService;
+
+    @Autowired
+    private UserService userService;
 
     @RequestMapping(value = "/searchWords/api")
     @ResponseBody

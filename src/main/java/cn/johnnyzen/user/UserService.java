@@ -69,6 +69,7 @@ public class UserService {
     }
 
 
+
     public int exitLogin( HttpServletRequest request, String loginToken){
         String logPrefix = "[UserService.exitLogin()] ";
         HttpSession session = null;

@@ -57,6 +57,7 @@ public class UserController {
                                  @RequestParam(value = "username",required = false) String username,
                                  @RequestParam(value = "sex",required = false) String sex,
                                  @RequestParam(value = "token",required = true) String token){
+
         return ResultUtil.error(ResultCode.FAIL, "[UserController.updateUserInfo] 接口暂未开发");
     }
 
