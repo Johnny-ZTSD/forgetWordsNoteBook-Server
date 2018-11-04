@@ -201,6 +201,44 @@ public class NewWordService {
         }
     }
 
+    /*
+     * 标记仍记得词汇 。
+     * 注：标记仍记得词汇的前提：必然是生词；更新生词记录的记忆时间、遗忘权重指数
+     *     1.根据id，查询到该词newWord
+     *          如果查询不到该生词，即 非用户生词记录，则：
+     *              标记失败，不存在该生词，返回 1
+     *     2.通过token获取用户user.id，并与newWord.user.id对比
+     *          如果非同一id，则：
+     *              标记失败，用户操作违法，返回 2
+     *     3.更新生词的记忆时间、遗忘权重指数。
+     *          标记成功，返回 3
+     */
+    public int tagStoredWord(HttpServletRequest request, Integer newWordId){
+        String logPrefix = "[NewWordService.tagStoredWord] ";
+        NewWord newWord = null;
+        newWord = newWordRepository.findNewWordById(newWordId);
+        if(newWord == null){
+            logger.info(logPrefix + "标记失败，不存在该生词。");
+            return 1;
+        }
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request);
+        if(!newWord.getUser().getId().equals(user.getId())){
+            logger.info(logPrefix + "标记失败，用户操作违法。");
+            return 2;
+        }
+        //更新生词的记忆时间、遗忘权重指数
+        Calendar now = Calendar.getInstance();
+        Timestamp ts = DatetimeUtil.calendarToTimestamp(now);
+        newWord.setLastStoredDatetime(ts);
+        double forgetRate = 0;
+        forgetRate = calculateForgetRate(newWord.getLastForgotDatetime(),newWord.getLastStoredDatetime(),newWord.getForgetCount());
+        newWord.setForgetRate(forgetRate);
+        newWordRepository.save(newWord);
+        logger.info(logPrefix + "标记成功。");
+        return 3;
+    }
+
     public List<Word> translate(String englishWord) throws IOException {
         String logPrefix = "[NewWordService.translate] ";
         StringBuilder url = new StringBuilder("http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=");
@@ -234,6 +272,20 @@ public class NewWordService {
         }
     }
 
+    /*
+     * 计算遗忘权值
+     * <对double calculateForgetRate(Calendar,Calendar,Calendar)的重载>
+     *
+     * @param lastForgetDate(距最近遗忘的天数) as nDate
+     * @param lastStoredDate(距最近记忆的天数) as mDate
+     * @param forgetCount int as s
+     */
+    public double calculateForgetRate(Timestamp lastForgetDate,Timestamp lastStoredDate,int forgetCount){
+        Calendar today = Calendar.getInstance();
+        int lastForgetDays = (int) ((today.getTimeInMillis() - DatetimeUtil.timestampToCalendar(lastForgetDate).getTimeInMillis()) / (60*1000*60*24)) + 1;//unit:day 60*1000[minute] 60*1000*60[hour]
+        int lastStoredDays = (int) ((today.getTimeInMillis() - DatetimeUtil.timestampToCalendar(lastStoredDate).getTimeInMillis()) / (60*1000*60*24)) + 1;
+        return calculateForgetRate(lastForgetDays, lastStoredDays, forgetCount);
+    }
 
     /*
      * 计算遗忘权值

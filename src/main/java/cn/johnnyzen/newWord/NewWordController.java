@@ -152,12 +152,33 @@ public class NewWordController {
         }
     }
 
+    /*
+     * 标记仍记得词汇
+     * @author johnny
+     * @param request HTTP请求
+     * @param id 生词ID
+     * @param token 用户登陆口令
+     */
     @RequestMapping(value = "/tagStoredWord/api")
     @ResponseBody
     public Result tagStoredWord(HttpServletRequest request,
                               @RequestParam(value = "id",required = true) Integer id,
                               @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.tagStoredWord] 接口暂未开发");
+        String logPrefix = "[NewWordController.tagStoredWord] ";
+        int handle = newWordService.tagStoredWord(request, id);
+        if(handle == 3){
+            logger.info(logPrefix + "标记(ID:" + id + ")成功。");
+            return ResultUtil.success("标记成功。");
+        } else if(handle == 2){
+            logger.info(logPrefix + "标记(ID:" + id + ")失败，用户操作违法。");
+            return ResultUtil.error(ResultCode.FAIL, "标记失败，用户操作违法。");
+        } else if(handle == 1){
+            logger.info(logPrefix + "标记(ID:" + id + ")失败，不存在该生词。");
+            return ResultUtil.error(ResultCode.FAIL, "标记失败，不存在该生词。");
+        } else {
+            logger.info(logPrefix + "标记(ID:" + id + ")失败，服务器错误未知。");
+            return ResultUtil.error(ResultCode.INTERNAL_SERVER_ERROR, "标记失败，服务器错误未知。");
+        }
     }
 
     @RequestMapping(value = "/tagForgetWord/api")

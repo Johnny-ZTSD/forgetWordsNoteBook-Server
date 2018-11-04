@@ -61,6 +61,12 @@ public class NewWordRepositoryTest {
         System.out.println(newWord.toString());
     }
 
+    @Test
+    public void testFindNewWordById(){
+        String logPrefix = "[NewWordRepositoryTest.testFindNewWordById] ";
+        System.out.println(logPrefix + newWordRepository.findNewWordById(1).toString());
+    }
+
 //    @Test ok
     public void testFindAllByUser(){
         User user = new User();

@@ -12,6 +12,9 @@ import java.util.List;
 
 public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
 
+    //通过生词ID查对应生词
+    public NewWord findNewWordById(Integer id);
+
     public Collection<NewWord> findAllByUserId(Integer userId);
 
     /* 原生SQL查询：对指定用户的所有生词进行模糊查询。
