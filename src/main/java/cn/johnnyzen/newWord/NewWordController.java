@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -222,8 +223,16 @@ public class NewWordController {
     public Result viewEverydayNewWords(HttpServletRequest request,
                                        @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                        @RequestParam(value = "token",required = true) String token){
-        
-        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewEverydayNewWords] 接口暂未开发");
+        String logPrefix = "[NewWordController.viewEverydayNewWords] ";
+        Page<ViewWord> viewWords = null;
+        viewWords = newWordService.viewEverydayNewWords(request,page);
+        if(viewWords == null){
+            logger.info(logPrefix + "该用户无任何生词。");
+            return ResultUtil.success("该用户无任何生词。");
+        } else {
+            logger.info(logPrefix + "获取用户每日生词成功!");
+            return ResultUtil.success("获取用户每日生词成功!", viewWords);
+        }
     }
 
     @RequestMapping(value = "/viewOftenForgotWords/api")

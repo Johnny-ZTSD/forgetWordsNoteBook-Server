@@ -1,6 +1,10 @@
 package cn.johnnyzen.newWord;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @IDE: Created by IntelliJ IDEA.
@@ -50,6 +54,19 @@ public class ViewWord {
         this.setUserId(newWord.getUser().getId());
         this.setUsername(newWord.getUser().getUsername());
         this.setEmail(newWord.getUser().getEmail());
+    }
+
+    public static List<ViewWord> newWordsToViewWords(Collection<NewWord> newWords){
+        Iterator<NewWord> nwIter = newWords.iterator();
+        List<ViewWord> viewWords = new ArrayList<ViewWord>();
+        while(nwIter.hasNext()){
+            viewWords.add(new ViewWord(nwIter.next()));
+        }
+        return viewWords;
+    }
+
+    public static ViewWord newWordToViewWord(NewWord neWord){
+        return new ViewWord(neWord);
     }
 
     public Integer getNewWordId() {

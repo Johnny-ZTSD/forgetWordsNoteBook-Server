@@ -53,22 +53,24 @@ public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
 
     /*
      * 查询用户最近days天新增的单词
+     * @reference
+     *      1 JPA自定义sql实现分页查询
+     *          http://blog.51cto.com/1385903/2058646
+     *      2 Spring Hibernate JPA 联表查询 复杂查询
+     *          https://www.cnblogs.com/jiangxiaoyaoblog/p/5635152.html
      */
-//    @Query(value =
-//            " select * from ( " +
-//            "   select * from tb_user as usr,r_user_focus_word as newWord,tb_word as word " +
-//            "      WHERE usr.pk_user_id = newWord.fk_ufw_user_id and word.pk_word_id = newWord.fk_ufw_word_id ) as tmp_tb " +
-//            " where tmp_tb.pk_user_id = :userId and DATE_SUB(CURDATE(), INTERVAL :days DAY) <= date(tmp_tb.create_new_word_datetime) ",
-//            nativeQuery = true)
-//    @Query(value =
-//            " SELECT *" +
-//                    " FROM ( " + //嵌套查询
-//                    " SELECT * " + //连接查询
-//                    " FROM tb_word AS word, r_user_focus_word AS newWord,tb_user AS usr" +
-//                    " WHERE word.pk_word_id = newWord.fk_ufw_word_id AND usr.pk_user_id = newWord.fk_ufw_user_id ) AS tb "+
-//                    " WHERE tb.pk_user_id = :userId ", //模糊查询
-//            nativeQuery = true)
-//    public Page<NewWord> findNewWordsOfLastDaysOfUser(@Param("userId") Integer userId,Pageable pageable);
+    @Query(value =
+            " select * from ( " +
+            "   select * from tb_user as usr,r_user_focus_word as newWord,tb_word as word " +
+            "      WHERE usr.pk_user_id = newWord.fk_ufw_user_id and word.pk_word_id = newWord.fk_ufw_word_id ) as tmp_tb " +
+            " where tmp_tb.pk_user_id = :userId and DATE_SUB(CURDATE(), INTERVAL :days DAY) <= date(tmp_tb.create_new_word_datetime)",
+           nativeQuery = true,
+           countQuery = // 有pageable，必须写countQuery
+           " select count(*) from ( " +
+                   "   select * from tb_user as usr,r_user_focus_word as newWord,tb_word as word " +
+                   "      WHERE usr.pk_user_id = newWord.fk_ufw_user_id and word.pk_word_id = newWord.fk_ufw_word_id ) as tmp_tb " +
+                   " where tmp_tb.pk_user_id = :userId and DATE_SUB(CURDATE(), INTERVAL :days DAY) <= date(tmp_tb.create_new_word_datetime)")
+    public Page<NewWord> findNewWordsOfLastDaysOfUser(@Param("userId") Integer userId,@Param("days") Integer days,Pageable pageable);
 
     public Collection<NewWord> findAllByUser(User user);
 

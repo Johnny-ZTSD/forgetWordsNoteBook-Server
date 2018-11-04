@@ -12,16 +12,16 @@ import cn.johnnyzen.word.WordService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -252,11 +252,16 @@ public class NewWordService {
 
     /*
      * 查看每日生词
-     *      注：包括每日是否已被成功记忆的生词;查询近三天用户添加的生词
+     *      注：包括每日是否已被成功记忆的生词;
+     *      查询近三天用户添加的生词
      */
-    public List<ViewWord> viewEverydayNewWords(HttpServletRequest request, Integer page){
-        
-        return null;
+    public Page<ViewWord> viewEverydayNewWords(HttpServletRequest request, Integer page){
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request);
+        Page<NewWord> newWords= newWordRepository.findNewWordsOfLastDaysOfUser(user.getId(),3,new PageRequest(page<1?0:page-1,50));
+        //将获取的生词NewWord转换为ViewWord
+        Page<ViewWord> viewWords = new PageImpl<ViewWord>(ViewWord.newWordsToViewWords(newWords.getContent()));
+        return viewWords;
     }
 
     public List<Word> translate(String englishWord) throws IOException {
