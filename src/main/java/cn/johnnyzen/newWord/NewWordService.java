@@ -202,8 +202,9 @@ public class NewWordService {
     }
 
     /*
-     * 标记仍记得词汇 。
-     * 注：标记仍记得词汇的前提：必然是生词；更新生词记录的记忆时间、遗忘权重指数
+     * 标记生词记忆结果
+     *      即 标记仍记得/已遗忘词汇
+     *      注 标记仍记得词汇的前提：必然是生词；更新生词记录的记忆时间、遗忘权重指数
      *     1.根据id，查询到该词newWord
      *          如果查询不到该生词，即 非用户生词记录，则：
      *              标记失败，不存在该生词，返回 1
@@ -212,9 +213,12 @@ public class NewWordService {
      *              标记失败，用户操作违法，返回 2
      *     3.更新生词的记忆时间、遗忘权重指数。
      *          标记成功，返回 3
+     *    @param request [use:token]
+     *    @param newWordId 生词ID
+     *    @param tagType ["Forgeted", "Stored"] 标记类型[已遗忘或者仍记得],区分大小写
      */
-    public int tagStoredWord(HttpServletRequest request, Integer newWordId){
-        String logPrefix = "[NewWordService.tagStoredWord] ";
+    public int tagMemoryResultOfNewWord(HttpServletRequest request, Integer newWordId, String tagType){
+        String logPrefix = "[NewWordService.tagMemoryResultOfNewWord] ";
         NewWord newWord = null;
         newWord = newWordRepository.findNewWordById(newWordId);
         if(newWord == null){
@@ -230,7 +234,14 @@ public class NewWordService {
         //更新生词的记忆时间、遗忘权重指数
         Calendar now = Calendar.getInstance();
         Timestamp ts = DatetimeUtil.calendarToTimestamp(now);
-        newWord.setLastStoredDatetime(ts);
+        if(tagType.equals("Forgeted")){
+            newWord.setLastForgotDatetime(ts);
+            newWord.setForgetCount((byte) (newWord.getForgetCount() + 1));
+        } else if(tagType.equals("Stored")){
+            newWord.setLastStoredDatetime(ts);
+        } else {
+            logger.info(logPrefix + "tagType非指定值，导致：更新仍记得时间或遗忘时间失败。");
+        }
         double forgetRate = 0;
         forgetRate = calculateForgetRate(newWord.getLastForgotDatetime(),newWord.getLastStoredDatetime(),newWord.getForgetCount());
         newWord.setForgetRate(forgetRate);
@@ -238,6 +249,7 @@ public class NewWordService {
         logger.info(logPrefix + "标记成功。");
         return 3;
     }
+
 
     public List<Word> translate(String englishWord) throws IOException {
         String logPrefix = "[NewWordService.translate] ";
