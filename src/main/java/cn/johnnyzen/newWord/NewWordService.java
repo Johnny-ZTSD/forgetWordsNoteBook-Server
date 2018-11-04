@@ -250,6 +250,14 @@ public class NewWordService {
         return 3;
     }
 
+    /*
+     * 查看每日生词
+     *      注：包括每日是否已被成功记忆的生词;查询近三天用户添加的生词
+     */
+    public List<ViewWord> viewEverydayNewWords(HttpServletRequest request, Integer page){
+        
+        return null;
+    }
 
     public List<Word> translate(String englishWord) throws IOException {
         String logPrefix = "[NewWordService.translate] ";

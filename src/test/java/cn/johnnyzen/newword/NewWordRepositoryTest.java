@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collection;
@@ -52,7 +54,7 @@ public class NewWordRepositoryTest {
         }
     }
 
-    @Test
+//    @Test
     public void testFindDistinctFirstByUserIdAndEnglishWord(){
         NewWord newWord = null;
         String englishWord = "family";
@@ -61,7 +63,7 @@ public class NewWordRepositoryTest {
         System.out.println(newWord.toString());
     }
 
-    @Test
+//    @Test
     public void testFindNewWordById(){
         String logPrefix = "[NewWordRepositoryTest.testFindNewWordById] ";
         System.out.println(logPrefix + newWordRepository.findNewWordById(1).toString());
@@ -76,5 +78,13 @@ public class NewWordRepositoryTest {
         for(NewWord item : newWords){
             System.out.println(item.toString());
         }
+    }
+
+    @Test
+    public void testFindNewWordsOfLastDaysOfUser(){
+        Pageable pageable = new PageRequest(1,2);
+//        page，第几页，从0开始，默认为第0页
+//        size，每一页的大小，默认为20
+        System.out.println(newWordRepository.findNewWordsOfLastDaysOfUser(1, pageable).iterator().next());
     }
 }

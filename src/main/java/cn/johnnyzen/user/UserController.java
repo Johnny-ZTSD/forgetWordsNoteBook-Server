@@ -116,7 +116,7 @@ public class UserController {
         logger.info("[UserController.viewLoginUserInfo] token" + token);
         user = userService.findOneByLoginUsersMap(request);
         if(user != null){
-            user.setPassword("");
+//            user.setPassword("");
             return ResultUtil.success("用户信息获取成功！", user);
         } else {//未曾登录
             return ResultUtil.error(ResultCode.NOT_LOGIN_NO_ACCESS, "用户信息获取失败！");
@@ -150,7 +150,7 @@ public class UserController {
         User user = null;
         user = userService.login(request.getSession(), username,password, email);
         if(user != null){
-            user.setPassword(""); //注：返回给前端时，密码屏蔽掉
+//            user.setPassword(""); //注：返回给前端时，密码屏蔽掉
             return  ResultUtil.success("登陆成功!", user);
         } else {
             return  ResultUtil.error(ResultCode.USERNAME_ERROR_OR_PASSWORD_ERROR, "用户名、邮箱或密码错误！");

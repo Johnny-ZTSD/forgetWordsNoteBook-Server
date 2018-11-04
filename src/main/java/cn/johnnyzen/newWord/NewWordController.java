@@ -181,6 +181,13 @@ public class NewWordController {
         }
     }
 
+    /*
+     * 标记已遗忘词汇
+     * @author johnny
+     * @param request HTTP请求
+     * @param id 生词ID
+     * @param token 用户登陆口令
+     */
     @RequestMapping(value = "/tagForgetWord/api")
     @ResponseBody
     public Result tagForgetWord(HttpServletRequest request,
@@ -203,11 +210,19 @@ public class NewWordController {
         }
     }
 
+    /*
+     * 查看每日生词
+     * @author johnny
+     * @param request HTTP请求
+     * @param page 生词ID
+     * @param token 用户登陆口令
+     */
     @RequestMapping(value = "/viewEverydayNewWords/api")
     @ResponseBody
     public Result viewEverydayNewWords(HttpServletRequest request,
                                        @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                        @RequestParam(value = "token",required = true) String token){
+        
         return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewEverydayNewWords] 接口暂未开发");
     }
 
