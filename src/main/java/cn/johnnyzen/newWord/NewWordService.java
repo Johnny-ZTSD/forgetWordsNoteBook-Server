@@ -6,6 +6,7 @@ import cn.johnnyzen.user.UserService;
 import cn.johnnyzen.util.collection.CollectionUtil;
 import cn.johnnyzen.util.datetime.DatetimeUtil;
 import cn.johnnyzen.util.request.RequestUtil;
+import cn.johnnyzen.util.reuslt.ResultUtil;
 import cn.johnnyzen.word.ThirdWordResult;
 import cn.johnnyzen.word.Word;
 import cn.johnnyzen.word.WordRepository;
@@ -62,6 +63,58 @@ public class NewWordService {
      */
     @PersistenceContext
     EntityManager entityManager;
+
+    /**
+     * 查词[searchWords]
+     * @param request
+     * @param search 搜索的英文单词
+     */
+    public Page<Word> searchWords(HttpServletRequest request,String search){
+        String logPrefix = "[NewWordService.searchWords] ";
+        Collection<Word> thirdWords = null; //第三方单词
+        List<Word> userNewWords = null; //用户生词
+        Page<Word> wordsPage = null; //分页器
+        Pageable pageable = new PageRequest(0, 50); //分页器
+        Map<String, Word> wordsMap = null; //已英文单词未主键，使用map对两集合的英文单词去重
+        try {
+            thirdWords = this.translate(search);
+            userNewWords = (List<Word>) this.findAllWordsOfUserByFuzzySearch(request, search);
+            if(thirdWords != null){ //不判断时，会导致运行时错误
+                userNewWords.addAll(thirdWords); //全部集中到userNewWords集合中处理
+            }
+            if(userNewWords == null){ //如果整个结果集都为空
+                logger.info(logPrefix + "result of search word(" + search + ") :success but null.");
+                wordsPage = new PageImpl<Word>(null, pageable,0);//"查词成功，但无结果。"
+                return wordsPage;
+            }
+            wordsMap = new HashMap<String, Word>();//此时words必不为空
+            Iterator<Word> iter = userNewWords.iterator();
+            while(iter.hasNext()){
+                Word word = iter.next();
+                /*
+                    如果map中已含有该单词:
+                        查看map中的该英文单词或者当前的单词是否id不为0;
+                        如果其中任意有一个不为0，则该单词的id变更为该非0id
+                        即：相当于更新当前英文单词的id
+                 */
+                if(wordsMap.containsKey(word.getEnglishWord())){
+                    Word mapWord = wordsMap.get(word.getEnglishWord());
+                    Integer id = mapWord.getId() != 0 ? mapWord.getId() : word.getId();
+                    mapWord.setId(id);
+                    wordsMap.put(mapWord.getEnglishWord(), mapWord);
+                } else { //map中不含当前单词
+                    wordsMap.put(word.getEnglishWord(), word);
+                }
+            }
+        } catch (IOException e) {//第三方API翻译异常
+            logger.warning(logPrefix + " thrid-api failed to tranlate : "+ search);
+            e.printStackTrace();
+        }
+        //[notice] must use jackson version:com.fasterxml.jackson,else it will pose error.
+        logger.info(logPrefix + "result of search word(" + search + ") :success.");
+        wordsPage = new PageImpl<Word>(userNewWords, pageable, userNewWords.size());
+        return wordsPage;
+    }
 
     public Collection<NewWord> findAllByUserId(Integer id){
         return newWordRepository.findAllByUserId(id);
