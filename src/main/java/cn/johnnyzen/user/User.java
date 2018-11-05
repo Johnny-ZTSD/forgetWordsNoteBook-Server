@@ -1,11 +1,11 @@
 package cn.johnnyzen.user;
 
-import cn.johnnyzen.newWord.NewWord;
+import cn.johnnyzen.authority.Authority;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Collection;
 
 /**
  * @IDE: Created by IntelliJ IDEA.
@@ -15,7 +15,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name="tb_user")
-public class User {
+public class User  implements Serializable {
     @Id
     @GeneratedValue
     @Column(name="pk_user_id")
@@ -51,6 +51,14 @@ public class User {
     /* 登陆token，主要用于登陆返回token时使用 */
     @Transient //临时字段，映射时忽略
     private String token;
+
+    /* sessionId 临时解决办法*/
+    @Transient //临时字段，映射时忽略
+    private String sessionId;
+
+    @JsonIgnore
+    @OneToOne //主控类
+    private Authority authority;
 
     //在不需要的转化json的属性上面设置@JsonIgnore，避免出现无线循环
 //    @JsonIgnore
@@ -178,6 +186,22 @@ public class User {
         this.token = token;
     }
 
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public Authority getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(Authority authority) {
+        this.authority = authority;
+    }
+
     //方便日志与测试
     public String toStringJustUsernameAndEmail(){
         return "(username:" + this.username + " email: " + this.email + ")";
@@ -196,6 +220,9 @@ public class User {
                 ",\n\t logoUrl=" + logoUrl + '\'' +
                 ",\n\t lastActiveDateTime=" + lastActiveDateTime +
                 ",\n\t token='" + token + '\'' +
+                ",\n\t sessionId='" + sessionId + '\'' +
+//                ",\n\t authorityCode='" + authority.getAuthorityCode() + '\'' +
+//                ",\n\t authorityType='" + authority.getAuthrityType() + '\'' +
                 "\n}";
     }
 }

@@ -1,5 +1,7 @@
 package cn.johnnyzen.word;
 
+import java.io.Serializable;
+
 /**
  * @IDE: Created by IntelliJ IDEA.
  * @Author: 千千寰宇
@@ -7,7 +9,7 @@ package cn.johnnyzen.word;
  * @Description: ...
  */
 
-public class ThirdWord {
+public class ThirdWord  implements Serializable {
     //tranlate source
     private String src;
 
