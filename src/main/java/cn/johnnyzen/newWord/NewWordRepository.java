@@ -65,12 +65,88 @@ public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
             "      WHERE usr.pk_user_id = newWord.fk_ufw_user_id and word.pk_word_id = newWord.fk_ufw_word_id ) as tmp_tb " +
             " where tmp_tb.pk_user_id = :userId and DATE_SUB(CURDATE(), INTERVAL :days DAY) <= date(tmp_tb.create_new_word_datetime)",
            nativeQuery = true,
-           countQuery = // 有pageable，必须写countQuery
+           countQuery = // 不具备JPA命名规范的DAO方法，有pageable，必须写countQuery
            " select count(*) from ( " +
                    "   select * from tb_user as usr,r_user_focus_word as newWord,tb_word as word " +
                    "      WHERE usr.pk_user_id = newWord.fk_ufw_user_id and word.pk_word_id = newWord.fk_ufw_word_id ) as tmp_tb " +
                    " where tmp_tb.pk_user_id = :userId and DATE_SUB(CURDATE(), INTERVAL :days DAY) <= date(tmp_tb.create_new_word_datetime)")
     public Page<NewWord> findNewWordsOfLastDaysOfUser(@Param("userId") Integer userId,@Param("days") Integer days,Pageable pageable);
+
+
+    /**
+     * 根据用户ID，查询按照forgetRate值降序排序的生词记录
+     * @param userId 用户ID
+     * @param pageable 分页器
+     */
+    @Query(value = "select newWord from NewWord newWord where newWord.user.id = :userId order by newWord.forgetRate",
+            countQuery = "select count(newWord) from NewWord newWord where newWord.user.id = :userId order by newWord.forgetRate")
+    public Page<NewWord> findNewWordsOfForgetRateTopByUserId(@Param("userId") Integer userId, Pageable pageable);
+
+    /**
+     * 根据用户ID，SQL乱序查询生词
+     *
+     */
+//    @Query(value = "select newWord from NewWord newWord where newWord.user.id = :userId order by RAND()")
+    @Query( value =
+            "select * from ( " +
+            " select * from tb_user as usr,r_user_focus_word as newWord,tb_word as word " +
+            " WHERE usr.pk_user_id = newWord.fk_ufw_user_id and word.pk_word_id = newWord.fk_ufw_word_id ) as tmp_tb " +
+            " where tmp_tb.pk_user_id = :userId ORDER BY RAND()",
+            nativeQuery = true,
+            countQuery =
+            "select * from ( " +
+            " select * from tb_user as usr,r_user_focus_word as newWord,tb_word as word " +
+            " WHERE usr.pk_user_id = newWord.fk_ufw_user_id and word.pk_word_id = newWord.fk_ufw_word_id ) as tmp_tb " +
+            " where tmp_tb.pk_user_id = :userId ORDER BY RAND()")
+    public Page<NewWord> findDisorderedNewWordsByUserId(@Param("userId") Integer userId, Pageable pageable);
+
+    /**
+     * 通过用户ID，依据用户的排序规则查询用户所有生词
+     */
+//    @Query(value =
+//            " select * from ( " +
+//            " select * from tb_user as usr,r_user_focus_word as newWord,tb_word as word " +
+//            " WHERE usr.pk_user_id = newWord.fk_ufw_user_id and word.pk_word_id = newWord.fk_ufw_word_id ) as tmp_tb " +
+//            " where tmp_tb.pk_user_id = :userId ORDER BY tmp_tb.:searchType :sortType",
+//            nativeQuery = true,
+//            countQuery =
+//            " select * from ( " +
+//            " select * from tb_user as usr,r_user_focus_word as newWord,tb_word as word " +
+//            " WHERE usr.pk_user_id = newWord.fk_ufw_user_id and word.pk_word_id = newWord.fk_ufw_word_id ) as tmp_tb " +
+//            " where tmp_tb.pk_user_id = :userId ORDER BY tmp_tb.:searchType :sortType")
+//    public Page<NewWord> findAllBySortRuleOfUser(@Param("userId")Integer userId,@Param("searchType")String searchType,@Param("sortType")String sortType, Pageable pageable);
+
+    /*
+     * 通过用户id，按照遗忘次数查询用户所有生词
+     * 注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     */
+    public Page<NewWord> findAllByUserIdOrderByForgetCount(@Param("userId")Integer userId, Pageable pageable);
+    public Page<NewWord> findAllByUserIdOrderByForgetCountAsc(@Param("userId")Integer userId, Pageable pageable);
+    public Page<NewWord> findAllByUserIdOrderByForgetCountDesc(@Param("userId")Integer userId, Pageable pageable);
+
+    /*
+     * 通过用户id，按照遗忘权重指数查询用户所有生词
+     * 注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     */
+    public Page<NewWord> findAllByUserIdOrderByForgetRate(@Param("userId")Integer userId, Pageable pageable);
+    public Page<NewWord> findAllByUserIdOrderByForgetRateAsc(@Param("userId")Integer userId, Pageable pageable);
+    public Page<NewWord> findAllByUserIdOrderByForgetRateDesc(@Param("userId")Integer userId, Pageable pageable);
+
+    /*
+     * 通过用户id，按照最近遗忘生词的时间查询用户所有生词
+     * 注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     */
+    public Page<NewWord> findAllByUserIdOrderByLastForgotDatetime(@Param("userId")Integer userId, Pageable pageable);
+    public Page<NewWord> findAllByUserIdOrderByLastForgotDatetimeAsc(@Param("userId")Integer userId, Pageable pageable);
+    public Page<NewWord> findAllByUserIdOrderByLastForgotDatetimeDesc(@Param("userId")Integer userId, Pageable pageable);
+
+    /*
+     * 通过用户id，按照最近仍记得的生词的时间查询用户所有生词
+     * 注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     */
+    public Page<NewWord> findAllByUserIdOrderByLastStoredDatetime(@Param("userId")Integer userId, Pageable pageable);
+    public Page<NewWord> findAllByUserIdOrderByLastStoredDatetimeAsc(@Param("userId")Integer userId, Pageable pageable);
+    public Page<NewWord> findAllByUserIdOrderByLastStoredDatetimeDesc(@Param("userId")Integer userId, Pageable pageable);
 
     public Collection<NewWord> findAllByUser(User user);
 

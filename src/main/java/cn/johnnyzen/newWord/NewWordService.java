@@ -3,6 +3,7 @@ package cn.johnnyzen.newWord;
 import cn.johnnyzen.user.User;
 import cn.johnnyzen.user.UserRepository;
 import cn.johnnyzen.user.UserService;
+import cn.johnnyzen.util.collection.CollectionUtil;
 import cn.johnnyzen.util.datetime.DatetimeUtil;
 import cn.johnnyzen.util.request.RequestUtil;
 import cn.johnnyzen.word.ThirdWordResult;
@@ -15,9 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -49,16 +53,27 @@ public class NewWordService {
     @Autowired
     private RequestUtil requestUtil;
 
+    /**
+     * 利用entityManager来定义原生sql
+     * 注入的是实体管理器,执行持久化操作(仅仅用于实现动态SQL需求的viewForgetWords方法)
+     * @reference
+     *      [1] springboot根据表名和字段查询和更新实现动态sql(jpa,mybatis)
+     *              https://blog.csdn.net/hzs33/article/details/81017827
+     */
+    @PersistenceContext
+    EntityManager entityManager;
+
     public Collection<NewWord> findAllByUserId(Integer id){
         return newWordRepository.findAllByUserId(id);
     }
 
-    /*
+    /**
      * 查找用户的所有生词。
      *  1.通过token，查找用户信息
      *  2.通过用户id查询用户的所有生词。
      *
      * @return Collection<Word>
+     * @param request
      */
     public Collection<Word> findAllWordsOfUserByRequest(HttpServletRequest request){
         String logPrefix = "[NewWordService.findAllWordsOfUserByRequest] ";
@@ -82,12 +97,12 @@ public class NewWordService {
         return words;
     }
 
-    /*
+    /**
      * 模糊查找用户的所有生词。[主要用于查词时，查某些类似单词]
      *  1.通过token，查找用户信息
      *  2.通过用户id和检索的单词模糊查询用户的所有生词。
      *
-     * @param search
+     * @param englishWord
      * @param request [need:token]
      * @return Collection<Word>
      */
@@ -113,12 +128,12 @@ public class NewWordService {
         return words;
     }
 
-    /*
+    /**
      * 精确查找用户的所有生词。[主要用于查某一词时]
      *  1.通过token，查找用户信息
      *  2.通过用户id和检索的单词精确查询用户的某个生词。
      *
-     * @param search
+     * @param englishWord
      * @param request [need:token]
      * @return Collection<Word>
      */
@@ -133,8 +148,9 @@ public class NewWordService {
         return newWords; // null or entity object
     }
 
-    /*
+    /**
      * @method 增添生词记录
+     * @author johnny
      *  1.通过englishWord，查询数据库word表中是否存在该单词记录
      *      如果无，新增该单词记录到word表中
      *      2.通过englishWord，调用第三方翻译接口，获取翻译结果，封装为word结果集
@@ -147,8 +163,6 @@ public class NewWordService {
      *              返回3
      *  @param englishWord
      *  @param request [use: token]
-     *
-     *  @author johnny
      */
     public int saveNewWord(HttpServletRequest request,String englishWord){
         String logPrefix = "[NewWordService.saveNewWord] ";
@@ -201,7 +215,7 @@ public class NewWordService {
         }
     }
 
-    /*
+    /**
      * 标记生词记忆结果
      *      即 标记仍记得/已遗忘词汇
      *      注 标记仍记得词汇的前提：必然是生词；更新生词记录的记忆时间、遗忘权重指数
@@ -250,10 +264,12 @@ public class NewWordService {
         return 3;
     }
 
-    /*
+    /**
      * 查看每日生词
      *      注：包括每日是否已被成功记忆的生词;
      *      查询近三天用户添加的生词
+     * @param request
+     * @param page
      */
     public Page<ViewWord> viewEverydayNewWords(HttpServletRequest request, Integer page){
         User user = null;
@@ -262,6 +278,102 @@ public class NewWordService {
         //将获取的生词NewWord转换为ViewWord
         Page<ViewWord> viewWords = new PageImpl<ViewWord>(ViewWord.newWordsToViewWords(newWords.getContent()));
         return viewWords;
+    }
+
+    /**
+     * 获取用户的高频忘词[forgetRate Top 300]
+     * @author request
+     * @param page
+     */
+    public Page<ViewWord> viewOftenForgotWords(HttpServletRequest request, Integer page){
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request);
+        Page<NewWord> newWords= null;
+        newWords = newWordRepository.findNewWordsOfForgetRateTopByUserId(user.getId(), new PageRequest( page < 1 ? 0 : page - 1, 50));
+        //将获取的生词NewWord转换为ViewWord
+        Page<ViewWord> viewWords = new PageImpl<ViewWord>(ViewWord.newWordsToViewWords(newWords.getContent()));
+        return viewWords;
+    }
+
+    /**
+     * 查看乱序生词 [用于"随便看看"功能]
+     * @param request
+     */
+    public Page<ViewWord> viewDisorderdWords(HttpServletRequest request){
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request);
+        Page<NewWord> newWords= null;
+        newWords = newWordRepository.findDisorderedNewWordsByUserId(user.getId(), new PageRequest(0, 50));
+        //将获取的生词NewWord转换为ViewWord
+        Page<ViewWord> viewWords = new PageImpl<ViewWord>(ViewWord.newWordsToViewWords(newWords.getContent()));
+        return viewWords;
+    }
+
+    /**
+     * 查看遗忘词汇
+     *     【查询策略】根据用户的排序规则，查询生词
+     * @author johnny
+     * @param request
+     * @param searchType 查询类型 [ForgetCount遗忘次数/ForgetDatetime(最近)遗忘时间/StoredDatetime(最近)记忆时间]
+     * @param sortType 排序规则 [DESC 升序 / ASC升序]
+     * @param page 页数 [default value: 1]
+     */
+    public Page<ViewWord> viewForgetWords(HttpServletRequest request, String searchType, String sortType, Integer page){
+        String logPrefix = "[NewWordService.viewForgetWords] ";
+        Map<String,String> searchTypeMapOfOToF = new HashMap<>(); //搜索类型与数据库字段相匹配
+        //检验参数的格式
+        searchTypeMapOfOToF.put("ForgetCount","forget_count");
+        searchTypeMapOfOToF.put("ForgetDatetime","last_forgot_datetime");
+        searchTypeMapOfOToF.put("StoredDatetime","last_stored_datetime");
+        if(!CollectionUtil.isItemInList(Arrays.asList(searchTypeMapOfOToF.keySet().toArray()), searchType)){//如果searchType不在上述值中[字母大小写严格匹配]
+            logger.info(logPrefix + "searchType参数[非指定值]异常。");
+            return null;
+        }
+        if((!sortType.equals("DESC")) && (!sortType.equals("ASC"))){
+            logger.info(logPrefix + "sortType参数[非指定值]异常。");
+            return null;
+        }
+        //依据用户指定的排序规则，获取数据库中用户的所有生词
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request);
+        Page<ViewWord> viewWordsPage = null;
+        Pageable pageable = new PageRequest(0,50);
+        List<ViewWord> viewWords = null;
+        //暂时未能解决数据库表级别动态SQL的暴力解决法↓(JPA/Hibernate不支持;Mybits支持)
+        if(searchType.equals("ForgetCount") && sortType.equals("DESC")){
+            viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByForgetCountDesc(user.getId(), pageable).getContent());
+            viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
+            logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | ForgetCount & DESC | count:" + viewWords.size()  + ">");
+            return viewWordsPage;
+        } else if(searchType.equals("ForgetCount") && sortType.equals("ASC")){
+            viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByForgetCountAsc(user.getId(), pageable).getContent());
+            viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
+            logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | ForgetCount & ASC | count:" + viewWords.size()  + ">");
+            return viewWordsPage;
+        } else if(searchType.equals("ForgetDatetime") && sortType.equals("DESC")){
+            viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByLastForgotDatetimeDesc(user.getId(), pageable).getContent());
+            viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
+            logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | ForgetDatetime & DESC | count:" + viewWords.size()  + ">");
+            return viewWordsPage;
+        } else if(searchType.equals("ForgetDatetime") && sortType.equals("ASC")){
+            viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByLastForgotDatetimeAsc(user.getId(), pageable).getContent());
+            viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
+            logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | ForgetDatetime & ASC | count:" + viewWords.size()  + ">");
+            return viewWordsPage;
+        } else if(searchType.equals("StoredDatetime") && sortType.equals("DESC")){
+            viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByLastStoredDatetimeDesc(user.getId(), pageable).getContent());
+            viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
+            logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | StoredDatetime & DESC | count:" + viewWords.size()  + ">");
+            return viewWordsPage;
+        } else if(searchType.equals("StoredDatetime") && sortType.equals("ASC")){
+            viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByLastStoredDatetimeAsc(user.getId(), pageable).getContent());
+            viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
+            logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | StoredDatetime & ASC | count:" + viewWords.size()  + ">");
+            return viewWordsPage;
+        } else {//异常情况
+            logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " is error.>");
+            return viewWordsPage; // null
+        }
     }
 
     public List<Word> translate(String englishWord) throws IOException {

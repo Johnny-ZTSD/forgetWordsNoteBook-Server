@@ -39,7 +39,7 @@ public class NewWordController {
     @Autowired
     private UserService userService;
 
-    /*
+    /**
      * 查词
      * @author johnny
      * @param search
@@ -97,7 +97,7 @@ public class NewWordController {
         return ResultUtil.success("查词成功！", words.values());
     }
 
-    /*
+    /**
      * 查看某生词
      *  1.精确查找
      *  2.必须为用户的生词
@@ -127,7 +127,7 @@ public class NewWordController {
         }
     }
 
-    /*
+    /**
      * 新增生词
      * @author johnny
      * @param request
@@ -153,7 +153,7 @@ public class NewWordController {
         }
     }
 
-    /*
+    /**
      * 标记仍记得词汇
      * @author johnny
      * @param request HTTP请求
@@ -182,7 +182,7 @@ public class NewWordController {
         }
     }
 
-    /*
+    /**
      * 标记已遗忘词汇
      * @author johnny
      * @param request HTTP请求
@@ -211,7 +211,7 @@ public class NewWordController {
         }
     }
 
-    /*
+    /**
      * 查看每日生词
      * @author johnny
      * @param request HTTP请求
@@ -235,28 +235,76 @@ public class NewWordController {
         }
     }
 
+    /**
+     * 查看高频遗忘生词
+     * @author johnny
+     * @param request
+     * @param token
+     * @param page
+     */
     @RequestMapping(value = "/viewOftenForgotWords/api")
     @ResponseBody
     public Result viewOftenForgotWords(HttpServletRequest request,
                                 @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                 @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewOftenForgotWords] 接口暂未开发");
+        String logPrefix = "[NewWordController.viewOftenForgotWords] ";
+        Page<ViewWord> viewWords = null;
+        viewWords = newWordService.viewOftenForgotWords(request, page);
+        if(viewWords == null){
+            logger.info(logPrefix + "该用户无高频遗忘词。");
+            return ResultUtil.success("该用户无高频遗忘词。");
+        } else {
+            logger.info(logPrefix + "获取用户高频遗忘词成功!");
+            return ResultUtil.success("获取用户高频遗忘词成功!", viewWords);
+        }
     }
 
+    /**
+     * 查看乱序词汇
+     * @author johnny
+     * @param request
+     * @param token
+     */
     @RequestMapping(value = "/viewDisorderdWords/api")
     @ResponseBody
     public Result viewDisorderdWords(HttpServletRequest request,
-                                     @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewDisorderdWords] 接口暂未开发");
+                                     @RequestParam(value = "token",required = true) String token) {
+        String logPrefix = "[NewWordController.viewDisorderdWords] ";
+        Page<ViewWord> viewWords = null;
+        viewWords = newWordService.viewDisorderdWords(request);
+        if(viewWords == null){
+            logger.info(logPrefix + "该用户无任何生词。");
+            return ResultUtil.success("该用户无任何生词。");
+        } else {
+            logger.info(logPrefix + "获取用户乱序版生词成功!");
+            return ResultUtil.success("获取用户乱序版生词成功!", viewWords);
+        }
     }
 
+    /**
+     * 查看遗忘词汇
+     *     【查询策略】根据用户的排序规则，查询生词
+     * @author johnny
+     * @param request
+     * @param searchType 查询类型 [ForgetCount遗忘次数/ForgetDatetime(最近)遗忘时间/StoredDatetime(最近)记忆时间]
+     * @param sortType 排序规则 [DESC 升序 / ASC升序]
+     * @param page 页数 [default value: 1]
+     * @param token 用户登录口令
+     */
     @RequestMapping(value = "/viewForgetWords/api")
     @ResponseBody
     public Result viewForgetWords(HttpServletRequest request,
                                   @RequestParam(value = "searchType",required = true) String searchType,
                                   @RequestParam(value = "sortType",required = true) String sortType,
+                                  @RequestParam(value = "page",required = false, defaultValue = "1") Integer page,
                                   @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.viewForgetWords] 接口暂未开发");
+        Page<ViewWord> viewWords = null;
+        viewWords = newWordService.viewForgetWords(request,searchType,sortType, page);
+        if(viewWords == null){
+            return ResultUtil.success("未查询到用户的遗忘生词。");
+        } else {
+            return ResultUtil.success("获取用户的遗忘生词成功~", viewWords);
+        }
     }
 
     @RequestMapping(value = "/deleteNewWords/api")

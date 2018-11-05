@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @IDE: Created by IntelliJ IDEA.
@@ -34,12 +36,47 @@ public class NewWordRepositoryTest {
         }
     }
 
+//    @Test
+    public void testFindNewWordsOfForgetRateTopByUserId(){
+        Pageable pageable = new PageRequest(0,50);
+        List<NewWord> newWordList = newWordRepository.findNewWordsOfForgetRateTopByUserId(1,pageable).getContent();
+        Iterator<NewWord> nwIter = null;
+        nwIter = newWordList.iterator();
+        while(nwIter.hasNext()){
+            System.out.println(nwIter.next().toString());
+        }
+    }
+
+//    @Test
+//    public void testFindAllBySortRuleOfUser(){
+//        Pageable pageable = new PageRequest(0,50);
+//        List<NewWord> newWordList = newWordRepository.findAllBySortRuleOfUser(1,"last_forgot_datetime", "DESC", pageable).getContent();
+//        Iterator<NewWord> nwIter = null;
+//        nwIter = newWordList.iterator();
+//        while(nwIter.hasNext()){
+//            System.out.println(nwIter.next().toString());
+//        }
+//    }
+
+    @Test
+    public void testFindAllBySortRuleOfUser(){
+        Pageable pageable = new PageRequest(0,50);
+        List<NewWord> newWordList = newWordRepository.findAllByUserIdOrderByForgetCount(1, pageable).getContent();
+        Iterator<NewWord> nwIter = null;
+        nwIter = newWordList.iterator();
+        while(nwIter.hasNext()){
+            System.out.println(nwIter.next().toString());
+        }
+    }
+
     //@Test
-    public void testFindAllByEmail(){
-        Collection<NewWord> newWords = newWordRepository.findAllByEmail("1125418540@qq.com");
-        System.out.println("NewWordRepository.testFindAllByEmail:");
-        for(NewWord item : newWords){
-            System.out.println(item.toString());
+    public void testFindDisorderedNewWordsByUserId(){
+        Pageable pageable = new PageRequest(0,50);
+        List<NewWord> newWordList = newWordRepository.findDisorderedNewWordsByUserId(1,pageable).getContent();
+        Iterator<NewWord> nwIter = null;
+        nwIter = newWordList.iterator();
+        while(nwIter.hasNext()){
+            System.out.println(nwIter.next().toString());
         }
     }
 
@@ -80,11 +117,11 @@ public class NewWordRepositoryTest {
         }
     }
 
-    @Test
+//    @Test
     public void testFindNewWordsOfLastDaysOfUser(){
         Pageable pageable = new PageRequest(1,2);
 //        page，第几页，从0开始，默认为第0页
 //        size，每一页的大小，默认为20
-        System.out.println(newWordRepository.findNewWordsOfLastDaysOfUser(1, pageable).iterator().next());
+        System.out.println(newWordRepository.findNewWordsOfLastDaysOfUser(1,1, pageable).iterator().next());
     }
 }
