@@ -167,13 +167,13 @@ public class UserController {
                         @RequestParam(value = "username",required = false) String username,
                         @RequestParam("password") String password,
                         @RequestParam(value = "email",required = false) String email){
-        String sessionId = request.getSession().getId();
-        response.setHeader("JSESSIONID", sessionId);
+//        String sessionId = request.getSession().getId();
+//        response.addHeader("JSESSIONIDLOGINAPI", sessionId);
         if(userService.loginCheck(request) == 5){ //已登录过,并刷新活跃时间
             User user = null;
             user = userService.findOneByLoginUsersMap(request);
             if(user != null){
-                user.setSessionId(sessionId);
+//                user.setSessionId(sessionId);
                 return ResultUtil.success("已登录", user);
             }
         }
@@ -181,7 +181,7 @@ public class UserController {
         user = userService.login(request.getSession(), username,password, email);
         if(user != null){
 //            user.setPassword(""); //注：返回给前端时，密码屏蔽掉
-            user.setSessionId(sessionId);
+//            user.setSessionId(sessionId);
             return  ResultUtil.success("登陆成功!", user);
         } else {
             return  ResultUtil.error(ResultCode.USERNAME_ERROR_OR_PASSWORD_ERROR, "用户名、邮箱或密码错误！");

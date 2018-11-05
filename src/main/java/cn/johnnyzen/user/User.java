@@ -53,8 +53,8 @@ public class User  implements Serializable {
     private String token;
 
     /* sessionId 临时解决办法*/
-    @Transient //临时字段，映射时忽略
-    private String sessionId;
+//    @Transient //临时字段，映射时忽略
+//    private String sessionId;
 
     @JsonIgnore
     @OneToOne //主控类
@@ -186,13 +186,13 @@ public class User  implements Serializable {
         this.token = token;
     }
 
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
+//    public String getSessionId() {
+//        return sessionId;
+//    }
+//
+//    public void setSessionId(String sessionId) {
+//        this.sessionId = sessionId;
+//    }
 
     public Authority getAuthority() {
         return authority;
@@ -220,7 +220,7 @@ public class User  implements Serializable {
                 ",\n\t logoUrl=" + logoUrl + '\'' +
                 ",\n\t lastActiveDateTime=" + lastActiveDateTime +
                 ",\n\t token='" + token + '\'' +
-                ",\n\t sessionId='" + sessionId + '\'' +
+//                ",\n\t sessionId='" + sessionId + '\'' +
 //                ",\n\t authorityCode='" + authority.getAuthorityCode() + '\'' +
 //                ",\n\t authorityType='" + authority.getAuthrityType() + '\'' +
                 "\n}";

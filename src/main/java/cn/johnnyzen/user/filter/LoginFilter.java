@@ -59,8 +59,8 @@ public class LoginFilter implements Filter {
         HttpSession session = request.getSession();
         String uri = request.getRequestURI();
 
-        //return sessionID
-//        response.setHeader("JSESSIONID", ((HttpServletRequest) servletRequest).getSession().getId());
+        //return JsessionID:for weixin mini program
+        response.addHeader("JSESSIONID", ((HttpServletRequest) servletRequest).getSession().getId());
 
         System.out.println(logPrefix + "FILTER URL:" + request.getRequestURL());
         //是否需要过滤
