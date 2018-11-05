@@ -72,19 +72,21 @@ public class LoginFilter implements Filter {
 
             int loginState = userService.loginCheck(request);
             String message = logPrefix;
-            if(loginState == 1){
+            if(loginState == 5){
                 message = "登陆成功，且时间有效~";
                 logger.info("[LoginFilter.doFilter()] uri:" + uri + " pass filter");
                 filterChain.doFilter(request, response);//通过filter
                 return;
-            } else if(loginState == 0){
-                message = "活跃时间失效，请重新登录!";
-            } else if(loginState == -1){// not exists loginUsersMap in session
-                message = "未曾登陆！";
-            } else if(loginState == -2){//-2 ajax
-                message = "未曾登录![Ajax请求！]";
-            } else if(loginState == -3){ // -3 not ajax
-                message = "未曾登录";
+            } else if(loginState == 1){
+                message = "操作失败，未曾登陆!";
+            } else if(loginState == 2){
+                message = "操作失败，请求参数[token]不全！";
+            } else if(loginState == 3){
+                message = "操作失败，token无效。";
+            } else if(loginState == 4){
+                message = "操作失败，因登陆已超有效时间而失效。]";
+            } else { //unknown
+                message = "操作失败，原因未知。]";
             }
 
             logger.info("[LoginFilter.doFilter()] uri:" + uri + " pass filter failed!");

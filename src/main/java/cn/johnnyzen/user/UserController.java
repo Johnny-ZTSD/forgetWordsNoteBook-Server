@@ -140,7 +140,7 @@ public class UserController {
                         @RequestParam(value = "username",required = false) String username,
                         @RequestParam("password") String password,
                         @RequestParam(value = "email",required = false) String email){
-        if(userService.loginCheck(request) == 1){ //已登录过,并刷新活跃时间
+        if(userService.loginCheck(request) == 5){ //已登录过,并刷新活跃时间
             User user = null;
             user = userService.findOneByLoginUsersMap(request);
             if(user != null){

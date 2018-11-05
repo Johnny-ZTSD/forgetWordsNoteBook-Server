@@ -88,7 +88,6 @@ public class UserService {
             logger.warning(logPrefix + "未曾登陆，退出失败。(loginUsersMap不存在该用户)");
             return -2;
         }
-
         session.setAttribute("loginUsersMap", users);
         logger.warning(logPrefix + "用户(username:" + user.getUsername() + " email:"+user.getEmail() + ")退出成功！");
         return 1;
@@ -111,9 +110,9 @@ public class UserService {
         Map<String, User> users = null;
         users = this.fetchLoginUsersMapFromSession(request.getSession());
         if(users != null){
-//            for(User user:users.values()){
-//                System.out.println("[UserService.findOneByLoginUsersMap] " + user);
-//            }
+            for(User user:users.values()){
+                System.out.println("[UserService.findOneByLoginUsersMap] " + user);
+            }
 
             User user = null;
 
@@ -203,62 +202,73 @@ public class UserService {
     }
     /*
      * login check 登陆校验
-     *  1.通过token|username|email + request.session.loginUsersMap[token]
-     *  2.登陆有效核验时间为40分钟
-     *  3.刷新活跃时间
+     *  [注意：仅通过请求参数token判断用户是否登陆]
+     *  [默认：登陆有效核验时间为40分钟]
+     *  1.该会话是否已登录过用户[查询loginUsersMap是否存在]
+     *      1.1 if loginUsersMap不存在(用户会话不存在任何登陆用户(全新会话))
+     *          返回 1
+     *      1.2 if loginUsersMap存在(该会话已经登陆过用户(但可能不止一名))
+     *          1.2.1 通过request.[header/parameter].token获取用户请求的token
+     *              如果token不存在，token参数不齐全
+     *                  返回 2
+     *              如果token存在，token参数齐全；
+     *                  以token为key，在loginUsersMap中查找用户user
+     *                      如果user不存在，说明该会话有登陆用户，但当前token无效
+     *                          返回 3
+     *                      如果user存在，说明会话有登陆用户，且token有效
+     *                          计算user登陆时间与当前时刻相差的分钟数
+     *                              如果分钟数超过XX分钟，登陆超时已过期
+     *                                  返回 4，登陆有效时间超时失效
+     *                              如果分钟数未超过，登陆仍处于有效状态
+     *                                  刷新user最近活跃时间，并重新存入loginUsersMap
+     *                                  返回 5,用户登陆有效
      **/
     public int loginCheck(HttpServletRequest request){
         String logPrefix = "[UserService.loginCheck()] ";
         HttpSession session = request.getSession();
-        Map<String, User> users = null;
-        users = (Map<String, User>) session.getAttribute("loginUsersMap");
+        User user = null;
+        Map<String, User> loginedUsers = null;
+        loginedUsers = (Map<String, User>) session.getAttribute("loginUsersMap");
 
-        if(users != null){//登陆过，存在loginUsersMap
-//            for(User user:users.values()){
-//                logger.info(logPrefix + "<test> user:" + user.toString());
-//            }
-
-            User user = null;
-            user = this.findOneByLoginUsersMap(request);
-
-            if(user != null){
-                String loginToken = null;
-                loginToken = request.getParameter("token");//不可能不存在
-
-                logger.info(logPrefix + "user:" + user.toString());//test
-
-                //计算相差的分钟数 + 刷新用户最近活跃时间
-                Calendar lastActivateDateTime = user.getLastActiveDateTime();
-                long diferenceMinutes = (Calendar.getInstance().getTimeInMillis() - lastActivateDateTime.getTimeInMillis()) / (60 * 1000);
-                int validSeconds = 40;
-                if(diferenceMinutes <= validSeconds){
-                    //刷新用户的最近活跃时间戳
-                    user = flushLastActiveDateTime(user);
-                    users.put(loginToken, user); //重新写入 loginUsersMap
-                    session.setAttribute("loginUsersMap", users);
-
-//                    logger.info(logPrefix + "登陆成功且时间有效![" + user.toString() + "]");
-                    logger.info(logPrefix + "登陆成功且时间有效![username:" + user.getUsername() + " email:" + user.getEmail() + "]");
-                    return 1;
-                } else {
-                    logger.info(logPrefix + "登陆失败，原因：活跃时间(seconds:" + validSeconds + ")失效![" + user.toString() + "]");
-                    return 0;//距离上次使用登陆后其它的服务时间[已大于40分钟]：登陆失效，并自动注销登陆
-                }
-            } else { //未曾登陆过：loginUsersMap中不存在对应匹配的username|email|token
-                //判断是否为ajax请求
-                String requestType = request.getHeader("X-Requested-With");
-                if(requestType != null && "XMLHttpRequest".equals(requestType)){//ajax request
-                    logger.info(logPrefix + "未曾登录![Ajax请求！]");
-                    return -2;
-                } else {//not ajax request
-                    logger.info(logPrefix + "未曾登录!");
-                    return -3;
-                }
-            }
-        } else {
-            logger.info(logPrefix + "loginUsersMap不存在，说明未曾登陆");
-            return -1;
+        if(loginedUsers == null){
+            logger.info(logPrefix + "登陆失败，loginUsersMap不存在，说明未曾登陆");
+            return 1;
         }
+
+        //From [header/parameter] get:token
+        String requestToken = null;
+        requestToken = request.getParameter("token");
+        if(requestToken == null){
+            requestToken = request.getHeader("token");
+        }
+        if(requestToken == null){
+            logger.info("登陆失败，请求参数不全[token]");
+            return 2;
+        }
+
+        //以token为key，在loginUsersMap中查找用户user
+        user = loginedUsers.get(requestToken);
+        if(user == null){
+            logger.info("登陆失败，该会话有登陆用户，但当前token(" + requestToken + ")无效。");
+            return 3;
+        }
+
+        //计算+校验用户活跃时间是否有效
+        Calendar lastActivateDateTime = user.getLastActiveDateTime();
+        long diferenceMinutes = (Calendar.getInstance().getTimeInMillis() - lastActivateDateTime.getTimeInMillis()) / (60 * 1000);
+        int validSeconds = 40; //登陆的有效分钟数
+        if(diferenceMinutes > validSeconds){//超时
+            logger.info(logPrefix + "登陆失败，用户" + user.toStringJustUsernameAndEmail() + "登陆Token(" + requestToken + ")有效,但时间超时失效。");
+            return 4;
+        }
+
+        //用户登陆完全有效：刷新用户的最近活跃时间戳+重新存入loginUsersMap
+        user = flushLastActiveDateTime(user);
+        loginedUsers.put(requestToken, user);
+        session.setAttribute("loginUsersMap", loginedUsers);
+//                    logger.info(logPrefix + "登陆成功且时间有效![" + user.toString() + "]");
+        logger.info(logPrefix + "用户" + user.toStringJustUsernameAndEmail() + "<token:" + requestToken + ">登陆成功且时间有效!");
+        return 5;
     }
 
     public User findDistinctByActivateCode(String activateCode){
