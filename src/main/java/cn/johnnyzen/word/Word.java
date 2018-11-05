@@ -4,6 +4,7 @@ import cn.johnnyzen.newWord.NewWord;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name="tb_word")
-public class Word {
+public class Word  implements Serializable {
     @Id
     @GeneratedValue
     @Column(name="pk_word_id")

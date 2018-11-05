@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
@@ -20,8 +21,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "r_user_focus_word")
-@JsonIgnoreProperties(value={"word"})
-public class NewWord {
+public class NewWord implements Serializable{
 
     private Integer id;
     private Timestamp createNewWordDatetime;

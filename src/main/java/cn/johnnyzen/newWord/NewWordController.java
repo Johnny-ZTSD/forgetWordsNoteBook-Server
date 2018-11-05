@@ -109,6 +109,7 @@ public class NewWordController {
      * @param request
      * @param englishWord
      * @param chineseTranslate
+     * @param authorityCode
      * @param token
      */
     @RequestMapping(value = "/saveNewWordOfUser/api")
@@ -116,6 +117,7 @@ public class NewWordController {
     public Result saveNewWordOfUser(HttpServletRequest request,
                                     @RequestParam(value = "englishWord",required = true)String englishWord,
                                     @RequestParam(value = "chineseTranslate",required = true)String chineseTranslate,
+                                    @RequestParam(value = "authorityCode",required = true)String authorityCode,
                                     @RequestParam(value = "token",required = true) String token
                                     ){
 
