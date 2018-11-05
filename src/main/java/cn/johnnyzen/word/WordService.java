@@ -30,12 +30,12 @@ public class WordService {
     private WordRepository wordRepository;
 
     /**
-     * 新增用户自定义的生词/词组
+     * 新增用户自定义的单词/词组
      *  场景：由于用户的特别需要，想增加一些用户容易忘记的词组和意思等
      *  区别：
      *      与saveNewWord相比，saveNewWord新增生词的单词来源：
      *          数据库已存储的单词翻译记录或者第三方翻译接口的翻译
-     *      与saveNewWord相比，saveNewWordOfUser：
+     *      与saveNewWord相比，saveWordOfUser：
      *          0.如果该单词数据库中已存在，本接口HTTP请求所提供的单词翻译将覆盖数据的翻译
      *          1.新增生词的单词来源：只来源于用户的翻译，相当于提供一个用户编辑单词来提升/优化翻译效果的渠道；
      *          2.本接口不面向普通用户，仅用于管理员或者特殊用户[待定义]
@@ -53,21 +53,35 @@ public class WordService {
      * @param chineseTranslate
      * @param authorityCode
      */
-    public int saveNewWordOfUser(HttpServletRequest request,
+    public int saveWordOfUser(HttpServletRequest request,
                                  String englishWord,
                                  String chineseTranslate,
                                  String authorityCode){
-        String logPrefix = "[NewWordService.saveNewWordOfUser] ";
+        String logPrefix = "[WordService.saveWordOfUser] ";
         User user = null;
+        Word word = null;
+
         user = userService.findOneByLoginUsersMap(request);
         boolean authority = false;
-        String action = "/saveNewWordOfUser/api"; //操作URL的路径
+        String action = "/saveWordOfUser/api"; //操作URL的路径
         authority = authorityService.hasOperationAuthorityOfUser(user.getId(), authorityCode, action);
         if(!authority){// no authority of action
             logger.info(logPrefix + " this user" + user.toStringJustUsernameAndEmail() + " is no authority of operation<" + action + ">.");
             return 0;
         }
-
-        return 1;
+        word = wordRepository.findFirstByEnglishWord(englishWord.trim());
+        if(word != null){
+            word.setChineseTranslate(chineseTranslate.trim());
+            wordRepository.save(word);
+            logger.info(logPrefix + "update word<" + englishWord + "> in database success.");
+            return 1;
+        } else {
+            word = new Word();
+            word.setEnglishWord(englishWord);
+            word.setChineseTranslate(chineseTranslate);
+            wordRepository.save(word);
+            logger.info(logPrefix + "add new word<" + englishWord + "> to database success.");
+            return 2;
+        }
     }
 }

@@ -12,4 +12,5 @@ public interface WordRepository  extends JpaRepository<Word, Integer>  {
 
     public Collection<Word> findDistinctFirstByEnglishWord(String englishWord);
 
+    public Word findFirstByEnglishWord(String englishWord);
 }
