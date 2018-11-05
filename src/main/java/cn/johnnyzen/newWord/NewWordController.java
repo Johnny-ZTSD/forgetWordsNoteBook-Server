@@ -301,7 +301,7 @@ public class NewWordController {
         Page<ViewWord> viewWords = null;
         viewWords = newWordService.viewForgetWords(request,searchType,sortType, page);
         if(viewWords == null){
-            return ResultUtil.success("未查询到用户的遗忘生词，可能是您请求的参数[区分大小写]不在规定的取值中，。");
+            return ResultUtil.success("未查询到用户的遗忘生词，可能是您请求的参数[区分大小写]不在规定的取值中。");
         } else {
             return ResultUtil.success("获取用户的遗忘生词成功~", viewWords);
         }
