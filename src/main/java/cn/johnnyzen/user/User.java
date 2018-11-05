@@ -42,7 +42,7 @@ public class User {
      * 用户头像的绝对url
      * 根据固定策略生成url:url = http://域名:端口/上下文路径/user/logo/("${user.email}" + ".png")
      **/
-    @Transient //临时字段，映射时忽略
+    //@Transient //临时字段，映射时忽略
     private String logoUrl;
 
     @Transient //临时字段，映射时忽略
