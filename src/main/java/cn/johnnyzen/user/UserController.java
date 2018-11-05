@@ -7,12 +7,14 @@ import cn.johnnyzen.util.reuslt.ResultUtil;
 import com.sun.org.apache.regexp.internal.REUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -42,13 +44,26 @@ public class UserController {
     @PostMapping(value = "/updateUserLogo/api")
     @ResponseBody
     public Result updateUserLogo(HttpServletRequest request,
-                                 @RequestParam(value = "logo",required = true) MultipartFile logoFile){
+                                 @RequestParam(value = "logo") MultipartFile logoFile
+    ){
+        String filePath= null;
         try {
-            System.out.println(String.valueOf("[UserService.updateUserLogo] file content:\n"+logoFile.getBytes()));
-        } catch (IOException e) {
+            filePath = ResourceUtils.getURL("classpath:").getPath().toString();
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.updateUserLogo] 接口暂未开发");
+        int code=userService.updateUserLogoUrl(request,logoFile,filePath);
+        switch (code){
+            case 1:
+                return ResultUtil.success("上传头像成功！");
+            case -1:
+                return ResultUtil.error(ResultCode.FAIL,"文件类型为空，请重新选择");
+            case -2:
+                return ResultUtil.error(ResultCode.FAIL,"文件类型不符合，请重新选择");
+            default:
+                return ResultUtil.error(ResultCode.FAIL,"上传失败，原因未知");
+        }
+        //return ResultUtil.error(ResultCode.FAIL, "[UserController.updateUserLogo] 接口暂未开发");
     }
 
     @PostMapping(value = "/updateUserInfo/api")
@@ -57,8 +72,15 @@ public class UserController {
                                  @RequestParam(value = "username",required = false) String username,
                                  @RequestParam(value = "sex",required = false) String sex,
                                  @RequestParam(value = "token",required = true) String token){
-
-        return ResultUtil.error(ResultCode.FAIL, "[UserController.updateUserInfo] 接口暂未开发");
+        int code=userService.upudateUserInfo(request,username,sex);
+        switch (code){
+            case 1:
+                return ResultUtil.success("信息更新成功！");
+            case -1:
+                return ResultUtil.error(ResultCode.FAIL,"用户名格式不正确，请重新输入！");
+            default:
+                return ResultUtil.error(ResultCode.FAIL,"更新失败，原因未知");
+        }
     }
 
 

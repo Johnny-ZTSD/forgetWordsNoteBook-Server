@@ -2,16 +2,19 @@ package cn.johnnyzen.user;
 
 import cn.johnnyzen.mail.MailUtil;
 import cn.johnnyzen.util.code.CodeUtil;
+import cn.johnnyzen.util.file.FileUtil;
 import cn.johnnyzen.util.reuslt.ResultCode;
 import cn.johnnyzen.util.reuslt.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * @IDE: Created by IntelliJ IDEA.
@@ -368,6 +371,57 @@ public class UserService {
             logger.info(logPrefix + "session中不存在 loginUsersMap 对象，说明根本未登录，故无权限保存登录用户！");
             return -1; //session中不存在 loginUsersMap对象
         }
+    }
+    /* 更新用户头像*/
+    public int updateUserLogoUrl(HttpServletRequest request, MultipartFile file, String filePath){
+        User user=null;
+        user=this.findOneByLoginUsersMap(request);
+        String fileName=file.getOriginalFilename();
+        String realFileName=null;
+        String type=fileName.substring(fileName.lastIndexOf(".")+1,fileName.length());
+        if(type!=null){
+            if("GIF".equals(type.toUpperCase())||"PNG".equals(type.toUpperCase())||
+                    "JPG".equals(type.toUpperCase())){
+                realFileName=String.valueOf(System.currentTimeMillis())+fileName;
+                try {
+                    FileUtil.uploadFile(file.getBytes(),filePath,realFileName);
+                    user.setLogoUrl(realFileName);
+                    System.out.println("路径————————————"+filePath+realFileName);
+                    userRepository.save(user);
+                    return 1;
+                } catch (Exception e) {
+                    System.out.println("文件上传错误");
+                    e.printStackTrace();
+                }
+                return 1;//图片上传成功
+            }else {
+                return -2;//文件类型不符合
+            }
+        }else {
+            return -1;//文件类型为空
+        }
+    }
+
+    /* 更新个人信息 （用户名和性别）*/
+    public int upudateUserInfo(HttpServletRequest request,String username,String sex){
+        User user=null;
+        user=this.findOneByLoginUsersMap(request);
+        String pattern = "[\u4e00-\u9fa5\\w]+";//正则用于匹配用户名是否合法，只含有汉字、数字、字母、下划线
+        Pattern p=Pattern.compile(pattern);
+        if(username!=null && p.matcher(username).matches()){
+            user.setUsername(username);
+            if(sex!=null){
+                user.setSex(Character.valueOf(sex.charAt(0)));//String转换为Character
+            }
+            userRepository.save(user);
+            return 1;//更新成功
+        }
+        if(sex!=null){
+            user.setSex(Character.valueOf(sex.charAt(0)));
+            userRepository.save(user);
+            return 1;//更新成功
+        }
+        return -1;//用户名不合法
     }
 
     /* 创建新用户或者更新用户 */
