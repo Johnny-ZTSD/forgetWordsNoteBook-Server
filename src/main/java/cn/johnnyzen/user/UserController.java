@@ -49,12 +49,13 @@ public class UserController {
     public Result updateUserLogo(HttpServletRequest request,
                                  @RequestParam(value = "logo") MultipartFile logoFile
     ){
-        String filePath= null;
-        try {
-            filePath = ResourceUtils.getURL("classpath:").getPath().toString();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+//        String filePath= null;
+//        try {
+//            filePath = ResourceUtils.getURL("classpath:").getPath().toString();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+        String filePath="/home/ubuntu/forget-note-words/file/user/logo/";
         int code=userService.updateUserLogoUrl(request,logoFile,filePath);
         switch (code){
             case 1:
