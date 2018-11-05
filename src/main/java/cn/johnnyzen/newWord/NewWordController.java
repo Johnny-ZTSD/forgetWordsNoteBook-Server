@@ -53,7 +53,7 @@ public class NewWordController {
         String logPrefix = "[NewWordController.searchWords()] ";
         String message = "";
         Page<Word> words = null;
-        words = newWordService.searchWords(request,search);
+        words = newWordService.searchWords(request,search.trim());
         if(words.getSize() == 0){
             message = "查词成功，但无结果。";
             logger.info(logPrefix + message);
@@ -81,7 +81,7 @@ public class NewWordController {
                               @RequestParam(value = "token",required = true) String token){
         String logPrefix = "[NewWordController.viewWord()] ";
         NewWord newWord = null;
-        newWord = newWordService.findOneOfUserByExactSearch(request, englishWord);
+        newWord = newWordService.findOneOfUserByExactSearch(request, englishWord.trim());
         if(newWord == null) {
             logger.warning(logPrefix + "result of search word(" + englishWord + ") :success but null.");
             return ResultUtil.success("查词成功，但无匹配结果。");
@@ -93,6 +93,33 @@ public class NewWordController {
             ViewWord viewWord = new ViewWord(newWord);
             return ResultUtil.success("查词成功!", viewWord);
         }
+    }
+
+    /**
+     * 新增用户自定义的生词/词组
+     *  场景：由于用户的特别需要，想增加一些用户容易忘记的词组和意思等
+     *  区别：
+     *      与saveNewWord相比，saveNewWord新增生词的单词来源：
+     *          数据库已存储的单词翻译记录或者第三方翻译接口的翻译
+     *      与saveNewWord相比，saveNewWordOfUser：
+     *          0.如果该单词数据库中已存在，本接口HTTP请求所提供的单词翻译将覆盖数据的翻译
+     *          1.新增生词的单词来源：只来源于用户的翻译，相当于提供一个用户编辑单词来提升/优化翻译效果的渠道；
+     *          2.本接口不面向普通用户，仅用于管理员或者特殊用户[待定义]
+     * @author johnny
+     * @param request
+     * @param englishWord
+     * @param chineseTranslate
+     * @param token
+     */
+    @RequestMapping(value = "/saveNewWordOfUser/api")
+    @ResponseBody
+    public Result saveNewWordOfUser(HttpServletRequest request,
+                                    @RequestParam(value = "englishWord",required = true)String englishWord,
+                                    @RequestParam(value = "chineseTranslate",required = true)String chineseTranslate,
+                                    @RequestParam(value = "token",required = true) String token
+                                    ){
+
+        return  null;
     }
 
     /**
@@ -108,7 +135,7 @@ public class NewWordController {
 //                           @RequestParam(value = "chineseTranslate",required = true) String chineseTranslate,
                            @RequestParam(value = "token",required = true) String token){
         String logPrefix = "[NewWordController.saveNewWord] ";
-        int handle = newWordService.saveNewWord(request, englishWord);
+        int handle = newWordService.saveNewWord(request, englishWord.trim());
         if(handle == 3){
             logger.info(logPrefix + "数据库中未存在该生词关系，且插入数据成功！");
             return ResultUtil.success("添加生词成功!");
@@ -267,13 +294,14 @@ public class NewWordController {
                                   @RequestParam(value = "page",required = false, defaultValue = "1") Integer page,
                                   @RequestParam(value = "token",required = true) String token){
         Page<ViewWord> viewWords = null;
-        viewWords = newWordService.viewForgetWords(request,searchType,sortType, page);
+        viewWords = newWordService.viewForgetWords(request,searchType.trim(),sortType.trim(), page);
         if(viewWords == null){
             return ResultUtil.success("未查询到用户的遗忘生词，可能是您请求的参数[区分大小写]不在规定的取值中。");
         } else {
             return ResultUtil.success("获取用户的遗忘生词成功~", viewWords);
         }
     }
+
 
     @RequestMapping(value = "/deleteNewWords/api")
     @ResponseBody
