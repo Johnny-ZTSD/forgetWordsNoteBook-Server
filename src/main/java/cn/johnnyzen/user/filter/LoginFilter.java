@@ -70,7 +70,7 @@ public class LoginFilter implements Filter {
 
             int loginState = userService.loginCheck(request);
             String message = logPrefix;
-            if(loginState == 5){
+            if(loginState == 6){
                 message = "登陆成功，且时间有效~";
                 logger.info("[LoginFilter.doFilter()] uri:" + uri + " pass filter");
                 filterChain.doFilter(request, response);//通过filter
@@ -82,6 +82,8 @@ public class LoginFilter implements Filter {
             } else if(loginState == 3){
                 message = "操作失败，token无效。";
             } else if(loginState == 4){
+                message = "操作失败，该账户被锁定或者未激活。]";
+            } else if(loginState == 5){
                 message = "操作失败，因登陆已超有效时间而失效。]";
             } else { //unknown
                 message = "操作失败，原因未知。]";
