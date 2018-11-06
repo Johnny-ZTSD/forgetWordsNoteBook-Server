@@ -38,8 +38,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Value("${file.publicAccesssRootPath}")
-    private String publicAccesssRootPath;
+    @Value("${file.staticRealRootPath}")
+    private String staticRealRootPath;
 
     /*
      * @param token
@@ -60,7 +60,7 @@ public class UserController {
 //            e.printStackTrace();
 //        }
         //即 实际地址：publicAccesssRootPath + "/user/logo" + imgName,such as:C:/Users/千千寰宇/Desktop/public/user/logo/a.jpg
-        int code=userService.updateUserLogoUrl(request,logoFile, publicAccesssRootPath + "/user/logo/");
+        int code=userService.updateUserLogoUrl(request,logoFile, staticRealRootPath + "/user/logo/");
         switch (code){
             case 1:
                 return ResultUtil.success("上传头像成功！");

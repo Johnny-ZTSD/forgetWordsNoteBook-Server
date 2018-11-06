@@ -24,4 +24,19 @@ public class CollectionUtil {
         }
         return false;
     }
+
+    /* 必须满足 一个字符串是另一个字符串的子集，如果不是子集，结果将出错 */
+    public static String minus(String strA, String strB){
+        int compare = strA.compareTo(strB);
+        System.out.println("compare:" + (compare) + " <" + strA + " : " + strB + ">");
+        int lenA = strA.length();
+        int lenB = strB.length();
+        if(compare == 0){ //相等
+            return "";
+        } else if(compare < 0){//A更小或者更短
+            return strB.substring(lenB + compare);
+        } else {//B更长或者更大
+            return strA.substring(lenA - compare);
+        }
+    }
 }

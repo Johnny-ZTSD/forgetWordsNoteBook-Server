@@ -1,15 +1,12 @@
 package cn.johnnyzen.user.filter;
 
-import cn.johnnyzen.user.User;
 import cn.johnnyzen.user.UserService;
 import cn.johnnyzen.util.request.RequestUtil;
 import cn.johnnyzen.util.reuslt.ResultCode;
 import cn.johnnyzen.util.reuslt.ResultUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpRequest;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
@@ -17,8 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -107,7 +102,7 @@ public class LoginFilter implements Filter {
                                         ResultCode.NOT_LOGIN_NO_ACCESS, message)));
                 return;
             } else {//重定向到登录页(需要在static文件夹下建立此html文件)
-                response.sendRedirect(request.getContextPath()+"/static/user/login.html");
+                response.sendRedirect(request.getContextPath()+ "/static/login.html");
                 return;
             }
         }
