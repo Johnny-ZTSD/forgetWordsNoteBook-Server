@@ -38,8 +38,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Value("${file.uploadFolder}")
-    private String filePath;
+    @Value("${file.publicAccesssRootPath}")
+    private String publicAccesssRootPath;
 
     /*
      * @param token
@@ -59,7 +59,8 @@ public class UserController {
 //        } catch (FileNotFoundException e) {
 //            e.printStackTrace();
 //        }
-        int code=userService.updateUserLogoUrl(request,logoFile, filePath);
+        //即 实际地址：publicAccesssRootPath + "/user/logo" + imgName,such as:C:/Users/千千寰宇/Desktop/public/user/logo/a.jpg
+        int code=userService.updateUserLogoUrl(request,logoFile, publicAccesssRootPath + "/user/logo/");
         switch (code){
             case 1:
                 return ResultUtil.success("上传头像成功！");

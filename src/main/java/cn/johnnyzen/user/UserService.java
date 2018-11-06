@@ -376,6 +376,7 @@ public class UserService {
     }
     /* 更新用户头像*/
     public int updateUserLogoUrl(HttpServletRequest request, MultipartFile file, String filePath){
+        String logPrefix = "[UserService.updateUserLogoUrl] ";
         User user=null;
         user=this.findOneByLoginUsersMap(request);
         String fileName=file.getOriginalFilename();
@@ -388,7 +389,7 @@ public class UserService {
                 try {
                     FileUtil.uploadFile(file.getBytes(),filePath,realFileName);
                     user.setLogoUrl(realFileName);
-                    System.out.println("路径————————————"+filePath+realFileName);
+                    logger.info(logPrefix + " user's logo real path:" + filePath+realFileName);
                     userRepository.save(user);
                     return 1;
                 } catch (Exception e) {
