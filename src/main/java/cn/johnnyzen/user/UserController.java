@@ -157,6 +157,7 @@ public class UserController {
      * 1.初次登陆[数据库查询 username|email + password]
      * 2.非初次登陆，带token登陆
      * 3.非初次登陆，带username|email登陆
+     * 4.账户状态是否为1
      *
      * 登陆成功：返回 用户基本信息
      * 登陆失败：返回 空
@@ -171,9 +172,11 @@ public class UserController {
                         @RequestParam(value = "username",required = false) String username,
                         @RequestParam("password") String password,
                         @RequestParam(value = "email",required = false) String email){
+        String logPrefix = "[UserController.login] ";
+        String message = null;
         String sessionId = request.getSession().getId();
 //        response.addHeader("JSESSIONIDLOGINAPI", sessionId);
-        if(userService.loginCheck(request) == 5){ //已登录过,并刷新活跃时间
+        if(userService.loginCheck(request) == 6){ //已登录过,并刷新活跃时间
             User user = null;
             user = userService.findOneByLoginUsersMap(request);
             if(user != null){
@@ -184,11 +187,17 @@ public class UserController {
         User user = null;
         user = userService.login(request.getSession(), username,password, email);
         if(user != null){
+            if(user.getAccountState() != 1){
+                message = "该账户未被激活或者被锁定中！";
+                logger.info(logPrefix + message);
+                return ResultUtil.error(ResultCode.FAIL,  message);
+            }
 //            user.setPassword(""); //注：返回给前端时，密码屏蔽掉
             user.setSessionId(sessionId);
             return  ResultUtil.success("登陆成功!", user);
         } else {
-            return  ResultUtil.error(ResultCode.USERNAME_ERROR_OR_PASSWORD_ERROR, "用户名、邮箱或密码错误！");
+            message = "用户名、邮箱或密码错误！";
+            return  ResultUtil.error(ResultCode.USERNAME_ERROR_OR_PASSWORD_ERROR, message);
         }
     }
 

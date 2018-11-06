@@ -174,6 +174,10 @@ public class UserService {
             user = userRepository.findOneByEmailAndPassword(email, password);
         }
         if(user != null){//登陆成功
+            if(user.getAccountState() != 1){ //判断用户状态是否被激活
+                logger.info(logPrefix + "该账户" + user.toStringJustUsernameAndEmail() + "被锁定或者未激活");
+//                return null;//此处注释，交由Controller处理账户激活状态问题
+            }
             Map<String,User> map = null;
             map = (Map<String, User>) session.getAttribute("loginUsersMap");
             if(map == null){
@@ -221,12 +225,14 @@ public class UserService {
      *                      如果user不存在，说明该会话有登陆用户，但当前token无效
      *                          返回 3
      *                      如果user存在，说明会话有登陆用户，且token有效
+     *                          查看该用户账户状态，则：
+     *                              如果不为1，返回 4，该账户被锁定或者未激活
      *                          计算user登陆时间与当前时刻相差的分钟数
      *                              如果分钟数超过XX分钟，登陆超时已过期
-     *                                  返回 4，登陆有效时间超时失效
+     *                                  返回 5，登陆有效时间超时失效
      *                              如果分钟数未超过，登陆仍处于有效状态
      *                                  刷新user最近活跃时间，并重新存入loginUsersMap
-     *                                  返回 5,用户登陆有效
+     *                                  返回 6,用户登陆有效
      **/
     public int loginCheck(HttpServletRequest request){
         String logPrefix = "[UserService.loginCheck()] ";
@@ -258,13 +264,19 @@ public class UserService {
             return 3;
         }
 
+        //查看该用户状态是否被激活
+        if(user.getAccountState() != 1){
+            logger.info("登陆失败，该会话有登陆用户，token(" + requestToken + ")有效，但账户未激活或者被锁定。");
+            return 4;
+        }
+
         //计算+校验用户活跃时间是否有效
         Calendar lastActivateDateTime = user.getLastActiveDateTime();
         long diferenceMinutes = (Calendar.getInstance().getTimeInMillis() - lastActivateDateTime.getTimeInMillis()) / (60 * 1000);
         int validSeconds = 40; //登陆的有效分钟数
         if(diferenceMinutes > validSeconds){//超时
             logger.info(logPrefix + "登陆失败，用户" + user.toStringJustUsernameAndEmail() + "登陆Token(" + requestToken + ")有效,但时间超时失效。");
-            return 4;
+            return 5;
         }
 
         //用户登陆完全有效：刷新用户的最近活跃时间戳+重新存入loginUsersMap
@@ -273,7 +285,7 @@ public class UserService {
         session.setAttribute("loginUsersMap", loginedUsers);
 //                    logger.info(logPrefix + "登陆成功且时间有效![" + user.toString() + "]");
         logger.info(logPrefix + "用户" + user.toStringJustUsernameAndEmail() + "<token:" + requestToken + ">登陆成功且时间有效!");
-        return 5;
+        return 6;
     }
 
     public User findDistinctByActivateCode(String activateCode){
