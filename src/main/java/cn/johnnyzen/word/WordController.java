@@ -61,9 +61,9 @@ public class WordController {
         if(handle == 0){
             return ResultUtil.error(ResultCode.FAIL, "无此权限，操作失败。");
         } else if(handle == 1){
-            return ResultUtil.error(ResultCode.FAIL, "修改单词成功。");
+            return ResultUtil.success("修改单词成功。");
         }  else if(handle == 2){
-            return ResultUtil.error(ResultCode.FAIL, "新建单词成功。");
+            return ResultUtil.success("新建单词成功。");
         }  else {
             return ResultUtil.error(ResultCode.INTERNAL_SERVER_ERROR, "未知错误。");
         }
