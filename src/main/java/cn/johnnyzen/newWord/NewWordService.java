@@ -272,7 +272,22 @@ public class NewWordService {
             return 3;
         }
     }
+    /*
+     * @method 删除生词
+     * @author
+     */
+    public int deleteWords(HttpServletRequest request,String englishWord){
+        //String logPrefix = "[NewWordService.deleteWords] ";
 
+        User user=userService.findOneByLoginUsersMap(request);
+        NewWord newWord=null;
+        newWord=newWordRepository.findDistinctFirstByUserIdAndEnglishWord(user.getId(),englishWord);
+        if(newWord!=null){
+            newWordRepository.delete(newWord);
+            return 1;//删除生词成功
+        }
+        return -1;//不存在此生词关系
+    }
     /**
      * 标记生词记忆结果
      *      即 标记仍记得/已遗忘词汇
