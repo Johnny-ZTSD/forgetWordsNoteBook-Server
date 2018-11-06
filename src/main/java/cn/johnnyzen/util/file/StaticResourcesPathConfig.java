@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  */
 
 @Configuration
-public class UploadFilePathConfig extends WebMvcConfigurerAdapter {
+public class StaticResourcesPathConfig extends WebMvcConfigurerAdapter {
 
     //静态资源对外暴露的访问路径
     @Value("${file.staticAccessPath}")
