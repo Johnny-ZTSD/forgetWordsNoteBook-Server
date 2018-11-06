@@ -19,8 +19,14 @@ public class WordRepositoryTest {
         @Autowired
         private WordRepository wordRepository;
 
-        @Test
+//        @Test
         public void testWordRepository(){
             System.out.println(wordRepository.findFirstByEnglishWord("family").toString());
         }
+
+        @Test
+        public void testFindAllNewWordsOfNotUserByUserIdAndFuzzyEnglishWord(){
+                System.out.println(wordRepository.findAllNewWordsOfNotUserByUserIdAndFuzzyEnglishWord(1,"fa").toString());
+        }
+
 }

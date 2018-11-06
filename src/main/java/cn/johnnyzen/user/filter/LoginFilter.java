@@ -102,7 +102,7 @@ public class LoginFilter implements Filter {
                                         ResultCode.NOT_LOGIN_NO_ACCESS, message)));
                 return;
             } else {//重定向到登录页(需要在static文件夹下建立此html文件)
-                response.sendRedirect(request.getContextPath()+ "/static/login.html");
+                response.sendRedirect(request.getContextPath()+ "/static/user/login.html");
                 return;
             }
         }

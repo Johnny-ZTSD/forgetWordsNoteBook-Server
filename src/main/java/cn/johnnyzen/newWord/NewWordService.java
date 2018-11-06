@@ -74,17 +74,25 @@ public class NewWordService {
     public Page<Word> searchWords(HttpServletRequest request,String search){
         String logPrefix = "[NewWordService.searchWords] ";
         Collection<Word> thirdWords = null; //第三方单词
+        Collection<Word> wordsOfNotUserFromDB = null; //来自于数据库的非用户的生词
         List<Word> userNewWords = null; //用户生词
         Page<Word> wordsPage = null; //分页器
         Pageable pageable = new PageRequest(0, 50); //分页器
         Map<String, Word> wordsMap = null; //已英文单词未主键，使用map对两集合的英文单词去重
+
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request);
         try {
-            thirdWords = this.translate(search.trim());
-            //查询数据库中非用户的单词（即 不存在生词记录）
+            thirdWords = this.translate(search.trim());//第三方单词
+            //查询数据库中非用户的单词（即 不存在生词的单词记录）
+            wordsOfNotUserFromDB = wordRepository.findAllNewWordsOfNotUserByUserIdAndFuzzyEnglishWord(user.getId(), search.trim());
 
             userNewWords = (List<Word>) this.findAllWordsOfUserByFuzzySearch(request, search);
             if(thirdWords != null){ //不判断时，会导致运行时错误
                 userNewWords.addAll(thirdWords); //全部集中到userNewWords集合中处理
+            }
+            if(wordsOfNotUserFromDB !=null){//防止异常
+                userNewWords.addAll(wordsOfNotUserFromDB);
             }
             if(userNewWords == null){ //如果整个结果集都为空
                 logger.info(logPrefix + "result of search word(" + search + ") :success but null.");
@@ -102,11 +110,14 @@ public class NewWordService {
                         如果其中任意有一个不为0，则该单词的id变更为该非0id
                         即：相当于更新当前英文单词的id
                  */
-                if(wordsMap.containsKey(word.getEnglishWord())){
+                if(wordsMap.containsKey(word.getEnglishWord())){//通过englishWord去重
                     Word mapWord = wordsMap.get(word.getEnglishWord());
-                    Integer id = mapWord.getId() != 0 ? mapWord.getId() : word.getId();
-                    mapWord.setId(id);
-                    wordsMap.put(mapWord.getEnglishWord(), mapWord);
+                    Integer id = mapWord.getId();
+                    if(id == 0){//已存储的单词是第三方翻译，用当前单词覆盖掉,以优先当前单词<可能是来源于数据库，也可能来源于第三方>的翻译
+                        mapWord.setId(word.getId());
+                        wordsMap.put(mapWord.getEnglishWord(), word);
+                    } else {//第三方非翻译，不做任何处理
+                    }
                 } else { //map中不含当前单词
                     wordsMap.put(word.getEnglishWord(), word);
                 }
@@ -117,7 +128,7 @@ public class NewWordService {
         }
         //[notice] must use jackson version:com.fasterxml.jackson,else it will pose error.
         logger.info(logPrefix + "result of search word(" + search + ") :success.");
-        wordsPage = new PageImpl<Word>(userNewWords, pageable, userNewWords.size());
+        wordsPage = new PageImpl<Word>(new ArrayList<Word>(wordsMap.values()), pageable, userNewWords.size());
         return wordsPage;
     }
 

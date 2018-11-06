@@ -52,6 +52,7 @@ public class StaticResourcesDownloadController {
                 realPath = staticRealRootPath + realPath;//服务器实际路径
             }
             String realDir = realPath.substring(0, realPath.indexOf(fileName));
+            logger.info(logPrefix + "realDir:" + realDir);
             File file = new File( realDir, fileName);
             String logFormat = logPrefix + "url<" + request.getRequestURL() + "> access public file<" + fileName + "> in real path " + realPath + " ";
             if (file.exists()) {
