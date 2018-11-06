@@ -38,6 +38,9 @@ endpoints:
 
 
 #### 用户自定义
+file:
+  staticAccessPath: /public/**
+  uploadFolder: /home/ubuntu/forget-note-words/file/public/
 mail:
   protocol: http # 协议
   serverDomain: johnnyzen.cn # 本服务器域名或者IP

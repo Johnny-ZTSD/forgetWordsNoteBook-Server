@@ -36,6 +36,7 @@ public class User  implements Serializable {
 //    @Column(columnDefinition = "comment 'LOCKED:-1/UNACTIVATE:0/ACTIVATED:1'")
     private Integer accountState;
 
+    @JsonIgnore //对客户端屏蔽输出
     private String activateCode;
 
     /*
@@ -53,8 +54,8 @@ public class User  implements Serializable {
     private String token;
 
     /* sessionId 临时解决办法*/
-//    @Transient //临时字段，映射时忽略
-//    private String sessionId;
+    @Transient //临时字段，映射时忽略
+    private String sessionId;
 
     @JsonIgnore
     @OneToOne //主控类
@@ -186,13 +187,13 @@ public class User  implements Serializable {
         this.token = token;
     }
 
-//    public String getSessionId() {
-//        return sessionId;
-//    }
-//
-//    public void setSessionId(String sessionId) {
-//        this.sessionId = sessionId;
-//    }
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
     public Authority getAuthority() {
         return authority;
@@ -220,7 +221,7 @@ public class User  implements Serializable {
                 ",\n\t logoUrl=" + logoUrl + '\'' +
                 ",\n\t lastActiveDateTime=" + lastActiveDateTime +
                 ",\n\t token='" + token + '\'' +
-//                ",\n\t sessionId='" + sessionId + '\'' +
+                ",\n\t sessionId='" + sessionId + '\'' +
 //                ",\n\t authorityCode='" + authority.getAuthorityCode() + '\'' +
 //                ",\n\t authorityType='" + authority.getAuthrityType() + '\'' +
                 "\n}";

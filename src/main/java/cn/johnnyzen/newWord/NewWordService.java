@@ -67,6 +67,7 @@ public class NewWordService {
 
     /**
      * 查词[searchWords]
+     *  优先从数据库中查找，且数据库中的释义优先。
      * @param request
      * @param search 搜索的英文单词
      */
@@ -78,7 +79,9 @@ public class NewWordService {
         Pageable pageable = new PageRequest(0, 50); //分页器
         Map<String, Word> wordsMap = null; //已英文单词未主键，使用map对两集合的英文单词去重
         try {
-            thirdWords = this.translate(search);
+            thirdWords = this.translate(search.trim());
+            //查询数据库中非用户的单词（即 不存在生词记录）
+
             userNewWords = (List<Word>) this.findAllWordsOfUserByFuzzySearch(request, search);
             if(thirdWords != null){ //不判断时，会导致运行时错误
                 userNewWords.addAll(thirdWords); //全部集中到userNewWords集合中处理
@@ -95,6 +98,7 @@ public class NewWordService {
                 /*
                     如果map中已含有该单词:
                         查看map中的该英文单词或者当前的单词是否id不为0;
+                            单词的id为0，即：该单词属于第三方翻译的单词或者数据库中存在但不是该用户的单词。
                         如果其中任意有一个不为0，则该单词的id变更为该非0id
                         即：相当于更新当前英文单词的id
                  */
