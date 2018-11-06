@@ -279,8 +279,13 @@ public class NewWordController {
     @RequestMapping(value = "/deleteNewWords/api")
     @ResponseBody
     public Result deleteNewWords(HttpServletRequest request,
-                                  @RequestParam(value = "id",required = true) String id,
+                                  @RequestParam(value = "englishWord",required = true) String englishWord,
                                   @RequestParam(value = "token",required = true) String token){
-        return ResultUtil.error(ResultCode.FAIL, "[NewWordController.deleteNewWords] 接口暂未开发");
+        int code=newWordService.deleteWords(request,englishWord.trim());
+        if(code==1){
+            return ResultUtil.success("删除生词成功!");
+        }
+        else //-1
+            return ResultUtil.error(ResultCode.FAIL, "不存在此生词关系！");
     }
 }
