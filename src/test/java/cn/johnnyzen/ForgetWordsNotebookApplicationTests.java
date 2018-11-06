@@ -13,4 +13,9 @@ public class ForgetWordsNotebookApplicationTests {
 	@Autowired
 	WebApplicationContext webApplicationContext;
 
+	@Test
+	public void test(){
+
+	}
+
 }
