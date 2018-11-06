@@ -44,7 +44,7 @@ public class LoginFilter implements Filter {
 
     //不需要登录就可以访问的路径(比如:注册登录等)
     // 注:仅仅支持单"/"级路径
-    String[] includeUrls = new String[]{"/login","/register","/register-activate"};
+    String[] includeUrls = new String[]{"/public","/login","/register","/register-activate"};
 
     public LoginFilter(){
         userService = new UserService();
