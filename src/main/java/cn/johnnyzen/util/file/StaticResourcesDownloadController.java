@@ -29,15 +29,17 @@ public class StaticResourcesDownloadController {
     private String staticRealRootPath;
 
     //文件资源下载
-    @RequestMapping("/public/**/{fileName}.{fileSuffixName}")//前者是开放的根目录，后者是动态变化的具体访问目录<与实际服务器路径一一对应>
+    @RequestMapping("/public/**")//前者是开放的根目录，后者是动态变化的具体访问目录<与实际服务器路径一一对应>
     public String downloadFile(HttpServletRequest request,
-                               HttpServletResponse response,
-                               @PathVariable String fileName,
-                               @PathVariable String fileSuffixName) {
+                               HttpServletResponse response) {
         String logPrefix = "[StaticResourcesDownloadController.downloadFile] ";
-        logger.info(logPrefix + "starting execution ...");
-        fileName = fileName + "." + fileSuffixName;// 设置文件名，根据业务需要替换成要下载的文件名
+        String url = request.getRequestURL().toString();
+//        fileName = fileName + "." + fileSuffixName;// 设置文件名，根据业务需要替换成要下载的文件名
+        String fileName = null;
+        fileName = url.substring(url.lastIndexOf("/") + 1);
         String realPath = null;
+        logger.info(logPrefix + "starting execution ...");
+        logger.info(logPrefix + "fileName:" + fileName);
         if (fileName != null) {
             //设置文件路径
 //            String realPath = "D://aim//"
@@ -49,7 +51,9 @@ public class StaticResourcesDownloadController {
             } else {
                 realPath = staticRealRootPath + realPath;//服务器实际路径
             }
-            File file = new File(realPath , fileName);
+            String realDir = realPath.substring(0, realPath.indexOf(fileName));
+            File file = new File( realDir, fileName);
+            String logFormat = logPrefix + "url<" + request.getRequestURL() + "> access public file<" + fileName + "> in real path " + realPath + " ";
             if (file.exists()) {
 //                response.setContentType("application/force-download");// 设置强制下载不打开
                 response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);// 设置文件名
@@ -65,7 +69,6 @@ public class StaticResourcesDownloadController {
                         os.write(buffer, 0, i);
                         i = bis.read(buffer);
                     }
-                    logger.info(logPrefix + "url<" + request.getRequestURL() + "> access public file<" + fileName + "> in real path " + realPath + " success.");
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -83,7 +86,10 @@ public class StaticResourcesDownloadController {
                             e.printStackTrace();
                         }
                     }
+                    logger.info( logFormat + " success.");
                 }
+            } else {
+                logger.info(logFormat + " fail,because it doesn't exists.");
             }
         }
         logger.info(logPrefix + "url<" + request.getRequestURL() + "> access public file<" + fileName + "> in real path " + realPath + " fail.");

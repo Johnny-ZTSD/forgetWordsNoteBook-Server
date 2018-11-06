@@ -26,6 +26,15 @@ public class StaticResourcesDownloadControllerTest {
     }
 
     @Test
+    public void test(){
+        String fileName = "1.jpg";
+        String realPath = "C:/Users/千千寰宇/Desktop/public/1.jpg";
+        int index = realPath.indexOf(fileName);
+        System.out.println(realPath.substring(0,index));
+        realPath.substring(0, realPath.indexOf(fileName));
+    }
+
+//    @Test
     public void testStr(){
         String str = "32535";
         System.out.println(str.substring(1));
