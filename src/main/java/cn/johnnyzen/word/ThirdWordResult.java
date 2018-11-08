@@ -1,5 +1,6 @@
 package cn.johnnyzen.word;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -9,7 +10,7 @@ import java.util.List;
  * @Description: 第三方【翻译接口结果集】的映射实体
  */
 
-public class ThirdWordResult {
+public class ThirdWordResult implements Serializable {
     private String type;
 
     private int errorCode;

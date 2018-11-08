@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * @IDE: Created by IntelliJ IDEA.
@@ -14,7 +15,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "tb_authority")
-public class Authority {
+public class Authority implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "pk_authority_id", nullable = false)

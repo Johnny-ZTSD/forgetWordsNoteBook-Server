@@ -5,6 +5,7 @@ import cn.johnnyzen.word.Word;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.Set;
  */
 //@Entity
 //@Table(name="tb_tag")
-public class Tag {
+public class Tag implements Serializable {
     @Id
     @GeneratedValue
     @Column(name="pk_tag_id")

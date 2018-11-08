@@ -1,5 +1,6 @@
 package cn.johnnyzen.newWord;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +14,7 @@ import java.util.List;
  * @Description: 视图Bean，针对某些字段由于json需要屏蔽等因素，而特设此bean转发给客户端特定字段可见
  */
 
-public class ViewWord {
+public class ViewWord implements Serializable {
     /* 生词ID */
     private Integer newWordId;
     private Timestamp createNewWordDatetime;
