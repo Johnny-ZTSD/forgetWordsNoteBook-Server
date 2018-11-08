@@ -74,11 +74,18 @@ public class UserController {
         //return ResultUtil.error(ResultCode.FAIL, "[UserController.updateUserLogo] 接口暂未开发");
     }
 
+    /**
+     * 更新用户信息
+     *  更新时可以选择的字段仅有这两个[可只传其中一个，或者两个参数均传]
+     * @param request
+     * @param username
+     * @param sex ['F':Female or 'M':Male]
+     */
     @PostMapping(value = "/updateUserInfo/api")
     @ResponseBody
     public Result updateUserInfo(HttpServletRequest request,
                                  @RequestParam(value = "username",required = false) String username,
-                                 @RequestParam(value = "sex",required = false) String sex,
+                                 @RequestParam(value = "sex",required = false) Character sex,
                                  @RequestParam(value = "token",required = true) String token){
         int code=userService.upudateUserInfo(request,username,sex);
         switch (code){
@@ -212,24 +219,20 @@ public class UserController {
                            @RequestParam("email") String email
     ){
         int state = userService.register(username, password, email);
-        if(state == 1){
-            return ResultUtil.success("注册中，请查看注册邮箱(" + email + ")确认。");
-        } else if(state == -1){
-            return ResultUtil.error(
-                    ResultCode.FAIL,
-                    "注册失败，邮箱格式不正确！");
-        }  else if(state == -2){
-            return ResultUtil.error(
-                    ResultCode.FAIL,
-                    "用户注册失败，该 email 已被注册！");
-        }  else if(state == -3){
-            return ResultUtil.error(
-                    ResultCode.FAIL,
-                    "用户注册失败，该 username 已被注册！");
+        if(state == 6){
+            return ResultUtil.success("注册成功中，请请往邮箱(" + email + ")查收账号激活邮件。");
+        } else if(state == 1){
+            return ResultUtil.error(ResultCode.FAIL,"注册失败，用户名格式不合法！");
+        } else if(state == 2){
+            return ResultUtil.error(ResultCode.FAIL,"注册失败，密码格式不合法！");
+        } else if(state == 3){
+            return ResultUtil.error(ResultCode.FAIL,"注册失败，邮箱格式不合法！");
+        } else if(state == 4){
+            return ResultUtil.error(ResultCode.FAIL,"注册失败，该用户名已被注册！");
+        }  else if(state == 5){
+            return ResultUtil.error(ResultCode.FAIL,"注册失败，该邮箱已被注册！");
         } else {
-            return ResultUtil.error(
-                    ResultCode.FAIL,
-                    "注册失败，未知异常。[错误代码：ERROR-USER999]");
+            return ResultUtil.error(ResultCode.INTERNAL_SERVER_ERROR,"注册失败，原因未知，请及时联系管理员。");
         }
     }
 

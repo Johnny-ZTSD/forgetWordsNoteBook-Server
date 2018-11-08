@@ -2,6 +2,7 @@ package cn.johnnyzen.user;
 
 import cn.johnnyzen.mail.MailUtil;
 import cn.johnnyzen.util.code.CodeUtil;
+import cn.johnnyzen.util.collection.CollectionUtil;
 import cn.johnnyzen.util.file.FileUtil;
 import cn.johnnyzen.util.reuslt.ResultCode;
 import cn.johnnyzen.util.reuslt.ResultUtil;
@@ -321,45 +322,65 @@ public class UserService {
         }
     }
 
+    /**
+     * 用户注册
+     *  1.判断格式
+     *      1.1 判断用户名格式是否正确
+     *          如果错误，返回 1
+     *      1.2 判断密码格式是否正确
+     *          如果错误，返回 2
+     *      1.3 判断邮箱格式是否正确
+     *          如果错误，返回 3
+     *  2.判断该用户名是否存在：
+     *          如果已存在，返回 4
+     *  3.判断邮箱是否已被注册：
+     *          如果是，返回 5
+     *  3.初始化用户信息，创建并存储用户
+     *      返回 6，成功
+     *  @param username
+     *  @param password
+     *  @param email
+     */
     public int register(String username, String password, String email) {
         String logPrefix = "[UserService.register()] ";
-        //利用正则表达式（可改进）验证邮箱是否符合邮箱的格式
-        if(!email.matches("^\\w+@(\\w+\\.)+\\w+$")){
-            logger.warning(logPrefix + "用户注册失败，邮箱格式不正确！");
-            return -1;
+        //判断格式
+        if(CollectionUtil.isLegalUsername(username.trim())!=4){
+            return 1;
+        }
+        if(CollectionUtil.isLegalPassword(password)!=4){
+            return 2;
+        }
+        if(CollectionUtil.isLegalEmail(email)!=4){
+            return 3;
+        }
+        //判断用户名与邮箱的已存在性?
+        if(userRepository.isExistsThisUsername(username) > 0){
+            logger.info(logPrefix + "username<" + username + "> has existed,register fail!>");
+            return 4;
+        }
+        if(userRepository.isExistsThisEmail(email) > 0){
+            logger.info(logPrefix + "email<" + username + "> has existed,register fail!>");
+            return 5;
         }
 
-        //生成激活码
-        String code = CodeUtil.getUUID();
-
+        //所有限制条件均通过，初始化用户信息，创建并存储用户信息
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
         user.setEmail(email);
         user.setSex('U'); // U 未知
         user.setAccountState(0); // 0 未激活
+        String code = CodeUtil.getUUID(); // 生成随机激活码
         user.setActivateCode(code);
+        logger.info(logPrefix + "registering user information:" + user.toString());
+        //存储到数据库中，并发送激活邮件到相应邮箱
+        userRepository.save(user); //保存到数据库
+        mailUtil.setReciverEmail(email);//设置收件人邮箱
+        new Thread(mailUtil).start();//保存成功则通过线程的方式给用户发送一封邮件
+        logger.warning(logPrefix + "用户(username:" + user.getUsername() + " email:"+user.getEmail() + ")注册中...激活邮件已发送");
 
-        logger.info(user.toString());
-
-        //如果用户未被注册，将用户保存到数据库
-        if(userRepository.findOneByUsername(username) == null){
-            if(userRepository.findOneByEmail(email) == null){
-                userRepository.save(user); //保存到数据库
-                mailUtil.setActivateCode(code); //设置激活码
-                mailUtil.setReciverEmail(email);//设置收件人邮箱
-                new Thread(mailUtil).start();//保存成功则通过线程的方式给用户发送一封邮件
-
-                logger.warning(logPrefix + "用户(username:" + user.getUsername() + " email:"+user.getEmail() + ")注册中...激活邮件已发送");
-                return 1;
-            } else {//已被注册：：email
-                logger.warning(logPrefix + "用户注册失败，该 email 已被注册");
-                return -2;
-            }
-        } else {//已被注册username
-            logger.warning(logPrefix + "用户注册失败，该 username 已被注册");
-            return -3;
-        }
+        logger.info(logPrefix + user.toStringJustUsernameAndEmail() +" this new user register success,please receive activate email!");
+        return 6;
     }
 
     /* 更新或者保存登陆用户信息到session.loginUsersMap 中 */
@@ -417,8 +438,24 @@ public class UserService {
         }
     }
 
-    /* 更新个人信息 （用户名和性别）*/
-    public int upudateUserInfo(HttpServletRequest request,String username,String sex){
+    /**
+     * 更新个人信息 （用户名和性别）
+     *      设置处理结果变量result=0
+     *      检查两个字段的传值情况
+     *          如果两个参数都没有传：
+     *              返回result=0，更新失败
+     *          如果传了username：
+     *              判断username的格式，是否
+     *              判断数据库中是否已经存在新username：
+     *                  如果已经存在，返回 result=1
+     *                  如果不存在，result+1
+     *          如果传了sex：
+     *              判断
+     * @param request
+     * @param username
+     * @param sex [F or M]
+     */
+    public int upudateUserInfo(HttpServletRequest request,String username,Character sex){
         User user=null;
         user=this.findOneByLoginUsersMap(request);
         String pattern = "[\u4e00-\u9fa5\\w]+";//正则用于匹配用户名是否合法，只含有汉字、数字、字母、下划线
@@ -426,13 +463,13 @@ public class UserService {
         if(username!=null && p.matcher(username).matches()){
             user.setUsername(username);
             if(sex!=null){
-                user.setSex(Character.valueOf(sex.charAt(0)));//String转换为Character
+                user.setSex(Character.valueOf(sex));//String转换为Character
             }
             userRepository.save(user);
             return 1;//更新成功
         }
         if(sex!=null){
-            user.setSex(Character.valueOf(sex.charAt(0)));
+            user.setSex(Character.valueOf(sex));
             userRepository.save(user);
             return 1;//更新成功
         }

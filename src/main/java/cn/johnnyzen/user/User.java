@@ -1,11 +1,14 @@
 package cn.johnnyzen.user;
 
 import cn.johnnyzen.authority.Authority;
+import cn.johnnyzen.util.collection.CollectionUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.logging.Logger;
 
 /**
  * @IDE: Created by IntelliJ IDEA.
@@ -16,21 +19,38 @@ import java.util.Calendar;
 @Entity
 @Table(name="tb_user")
 public class User  implements Serializable {
+
     @Id
     @GeneratedValue
     @Column(name="pk_user_id")
     private Integer id;
 
+    /**
+     * 用户名
+     *  1.独一无二
+     *  2.格式合法性要求见：CollectionUtil对应密码判别方法
+     */
     @Column(nullable = false, unique = true)
     private String username;
 
+
+    /**
+     * 邮箱
+     *  格式合法性要求见：CollectionUtil对应密码判别方法
+     */
     @Column(nullable = false, unique = true)
     private String email;
 
+    /**
+     * 密码
+     *  格式合法性要求见：CollectionUtil对应密码判别方法
+     */
     @JsonIgnore
     private String password;
 
-    /* F:女;M:男 */
+    /* 性别
+     *  格式合法性要求见：CollectionUtil对应密码判别方法
+     */
     private Character sex;
 
 //    @Column(columnDefinition = "comment 'LOCKED:-1/UNACTIVATE:0/ACTIVATED:1'")
@@ -60,6 +80,8 @@ public class User  implements Serializable {
     @JsonIgnore
     @OneToOne //主控类
     private Authority authority;
+
+    public User() {}
 
     //在不需要的转化json的属性上面设置@JsonIgnore，避免出现无线循环
 //    @JsonIgnore

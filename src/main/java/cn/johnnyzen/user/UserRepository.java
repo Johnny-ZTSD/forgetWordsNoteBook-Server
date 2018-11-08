@@ -28,4 +28,20 @@ public interface UserRepository extends JpaRepository<User, Integer>{
     public User findOneByEmail(String email);
 
     public User findOneByUsername(String username);
+
+    /**
+     * 是否存在该用户名
+     * 如果存在，必大于1
+     * 不存在，等于0
+     */
+    @Query(value = "select count(*) from tb_user WHERE tb_user.username = :username",nativeQuery = true)
+    public int isExistsThisUsername(@Param("username")String username);
+
+    /**
+     * 是否存在该邮箱
+     * 如果存在，必大于1
+     * 不存在，等于0
+     */
+    @Query(value = "select count(*) from tb_user WHERE tb_user.email = :email",nativeQuery = true)
+    public int isExistsThisEmail(@Param("email")String email);
 }
