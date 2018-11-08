@@ -40,8 +40,8 @@ endpoints:
 #### 用户自定义
 file:
   staticAccessRootPath: /public/**
-#  staticRealRootPath: /home/ubuntu/forget-note-words/file/public/
-  staticRealRootPath: C:/Users/千千寰宇/Desktop/public/
+  staticRealRootPath: /home/ubuntu/forget-note-words/file/public/
+#  staticRealRootPath: C:/Users/千千寰宇/Desktop/public/
 mail:
   protocol: http # 协议
   serverDomain: johnnyzen.cn # 本服务器域名或者IP

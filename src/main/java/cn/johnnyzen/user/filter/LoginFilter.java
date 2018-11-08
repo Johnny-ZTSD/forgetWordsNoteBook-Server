@@ -57,7 +57,21 @@ public class LoginFilter implements Filter {
         //return JsessionID:for weixin mini program
         response.addHeader("JSESSIONID", ((HttpServletRequest) servletRequest).getSession().getId());
 
-        System.out.println(logPrefix + "FILTER URL:" + request.getRequestURL());
+        logger.info(logPrefix + "FILTER URL:" + request.getRequestURL());
+        //output JSESSIONID in log for find defect.
+        logger.info(logPrefix + "JSESSIONID in request.session:" + request.getSession().getId());
+
+        //output token in log for find defect.
+        String token = null;
+        token = request.getHeader("token");
+        if(token != null)
+            logger.info(logPrefix + "token in header:" + token);
+        token = null;
+        token = request.getParameter("token");
+        if(token != null){
+            logger.info(logPrefix + "token in request:" + token);
+        }
+
         //是否需要过滤
         boolean needFilter = this.isNeedFilter(uri);
 
