@@ -27,14 +27,24 @@ import java.util.regex.Pattern;
 public class UserService {
     private static final Logger logger = Logger.getLogger(UserService.class.getName());
 
+    //日志前缀字符串,方便通过日志定位程序
+    private static String logPrefix = null;
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private MailUtil mailUtil;
 
+    /**
+     * 重置密码
+     * @param request
+     * @param token
+     * @param newPswd
+     * @param oldPswd
+     */
     public int resetPassword(HttpServletRequest request, String token, String oldPswd, String newPswd){
-        String logPrefix = "[UserService.resetPassword()] ";
+        logPrefix = "[UserService.resetPassword()] ";
         if(!oldPswd.equals(newPswd)){//新旧密码不一致时，才可更改
             User user = null;
             user = this.findOneByLoginUsersMap(request);
@@ -73,9 +83,13 @@ public class UserService {
     }
 
 
-
+    /**
+     * 退出登陆
+     * @param request
+     * @param loginToken
+     */
     public int exitLogin( HttpServletRequest request, String loginToken){
-        String logPrefix = "[UserService.exitLogin()] ";
+        logPrefix = "[UserService.exitLogin()] ";
         HttpSession session = null;
         session = request.getSession();
         session = request.getSession();
@@ -103,14 +117,15 @@ public class UserService {
         return users;//null or map
     }
 
-    /*
+    /**
      * 通过session.loginUsersMap[username|email|token] + request.[username|email] 获取用户信息
      * 注：不再负责校验是否登陆过
      *
      * 返回null或者user
+     * @param request
      **/
     public User findOneByLoginUsersMap(HttpServletRequest request){
-        String logPrefix = "[UserService.findOneByLoginUsersMap()] ";
+        logPrefix = "[UserService.findOneByLoginUsersMap()] ";
         Map<String, User> users = null;
         users = this.fetchLoginUsersMapFromSession(request.getSession());
         if(users != null){
@@ -163,12 +178,15 @@ public class UserService {
 
 
 
-    /*
+    /**
      * 用户登录
      * login by: email | username + password
-     * */
+     * @param username
+     * @param password
+     * @param email
+     **/
     public User login(HttpSession session,String username,String password,String email){
-        String logPrefix = "[UserService.login()] ";
+        logPrefix = "[UserService.login()] ";
         User user = null;
         user = userRepository.findOneByUsernameAndPassword(username,password);
         if(user == null){
@@ -204,13 +222,20 @@ public class UserService {
         return null;
     }
 
+
+    /**
+     * 刷新登陆用户的最新活跃时间
+     *  保障用户能够维持有效登陆
+     *  @param user
+     */
     public User flushLastActiveDateTime(User user){
-        String logPrefix = "[UserService.flushLastActiveDateTime()] ";
+        logPrefix = "[UserService.flushLastActiveDateTime()] ";
         user.setLastActiveDateTime(Calendar.getInstance());//将活跃时间刷新为当前时刻
         logger.info(logPrefix + "已刷新用户(" + user.getUsername() + ")的活跃时间戳!");
         return user;
     }
-    /*
+
+    /**
      * login check 登陆校验
      *  [注意：仅通过请求参数token判断用户是否登陆]
      *  [默认：登陆有效核验时间为40分钟]
@@ -234,9 +259,10 @@ public class UserService {
      *                              如果分钟数未超过，登陆仍处于有效状态
      *                                  刷新user最近活跃时间，并重新存入loginUsersMap
      *                                  返回 6,用户登陆有效
+     * @param request
      **/
     public int loginCheck(HttpServletRequest request){
-        String logPrefix = "[UserService.loginCheck()] ";
+        logPrefix = "[UserService.loginCheck()] ";
         HttpSession session = request.getSession();
         User user = null;
         Map<String, User> loginedUsers = null;
@@ -299,6 +325,12 @@ public class UserService {
         }
     }
 
+
+    /**
+     * 注册激活
+     * @param session
+     * @param code
+     */
     public int registerActivate(HttpSession session,String code){
         User user = null;
         user = this.findDistinctByActivateCode(code);
@@ -342,7 +374,7 @@ public class UserService {
      *  @param email
      */
     public int register(String username, String password, String email) {
-        String logPrefix = "[UserService.register()] ";
+        logPrefix = "[UserService.register()] ";
         //判断格式
         if(CollectionUtil.isLegalUsername(username.trim())!=4){
             return 1;
@@ -383,9 +415,14 @@ public class UserService {
         return 6;
     }
 
-    /* 更新或者保存登陆用户信息到session.loginUsersMap 中 */
+    /**
+     * 更新或者保存登陆用户信息到session.loginUsersMap 中
+     *  @param session
+     *  @param user
+     *  @param loginToken
+     **/
     public int saveToSession(HttpSession session , User user,String loginToken){
-        String logPrefix = "[UserService.saveToSession()] ";
+        logPrefix = "[UserService.saveToSession()] ";
         Map<String, User> users = null;
         users = this.fetchLoginUsersMapFromSession(session);
         if(users != null){ //存在 loginUsersMap对象
@@ -407,9 +444,15 @@ public class UserService {
             return -1; //session中不存在 loginUsersMap对象
         }
     }
-    /* 更新用户头像*/
+
+    /**
+     * 更新用户头像
+     * @param request
+     * @param file
+     * @param filePath
+     */
     public int updateUserLogoUrl(HttpServletRequest request, MultipartFile file, String filePath){
-        String logPrefix = "[UserService.updateUserLogoUrl] ";
+        logPrefix = "[UserService.updateUserLogoUrl] ";
         User user=null;
         user=this.findOneByLoginUsersMap(request);
         String fileName=file.getOriginalFilename();
@@ -439,44 +482,87 @@ public class UserService {
     }
 
     /**
-     * 更新个人信息 （用户名和性别）
-     *      设置处理结果变量result=0
+     * 更新个人信息 （仅用户名和性别）
+     *      设置处理结果变量sexResult=0,usernameResult=0
      *      检查两个字段的传值情况
      *          如果两个参数都没有传：
-     *              返回result=0，更新失败
+     *              return usernameResult=0，更新失败
+     *          如果两个参数都传：
+     *              return usernameResult=1，更新失败，请选择其中一个字段上传
      *          如果传了username：
-     *              判断username的格式，是否
+     *              判断username的格式，是否合法：
+     *                  如果不合法：
+     *                     return usernameResult=2，更新失败
      *              判断数据库中是否已经存在新username：
-     *                  如果已经存在，返回 result=1
-     *                  如果不存在，result+1
+     *                  如果已经存在：
+     *                     return usernameResult=3，更新失败
+     *                  如果不存在：
+     *                     设置user新的用户名。
+     *                     保存user到数据库中。
+     *                     return usernameResult=6
      *          如果传了sex：
-     *              判断
+     *              判断sex格式是否合法：
+     *                  如果不合法：
+     *                      return sexResult=4；
+     *                  如果合法：
+     *                      设置user新的性别值
+     *                      保存user到数据库中
+     *                      return sexResult=5
+     *           return -1;//未知异常[原则上讲，程序逻辑不会运行到此处，也不会出现此情况]
      * @param request
      * @param username
      * @param sex [F or M]
      */
-    public int upudateUserInfo(HttpServletRequest request,String username,Character sex){
-        User user=null;
-        user=this.findOneByLoginUsersMap(request);
-        String pattern = "[\u4e00-\u9fa5\\w]+";//正则用于匹配用户名是否合法，只含有汉字、数字、字母、下划线
-        Pattern p=Pattern.compile(pattern);
-        if(username!=null && p.matcher(username).matches()){
-            user.setUsername(username);
-            if(sex!=null){
-                user.setSex(Character.valueOf(sex));//String转换为Character
+    public int updateUserInfo(HttpServletRequest request,String username,Character sex){
+        logPrefix = "[UserService.updateUserInfo] ";
+        User user = null;
+        logger.info(logPrefix + " parameter: username<" + username + ">" + " sex<" + sex + ">");
+        if(username == null && (sex == null || sex == ' ')){//都不传
+            return 0;//fail
+        }
+        if(username == null){
+            if(sex == null){
+                return 0; //fail,都不传
             }
-            userRepository.save(user);
-            return 1;//更新成功
+            //更新sex
+            if(sex != ' '){//传了sex
+                if(!CollectionUtil.isLegalSex(sex)){
+                    return 4;//fail
+                }
+                //更新用户信息
+                user = this.findOneByLoginUsersMap(request);//已经经过过滤器校验，user必然存在
+                user.setSex(sex);
+                userRepository.save(user);
+                return 5;//success
+            }
+        } else {//username is not null
+            if(sex != null){
+                return 1; ////fail,都传
+            }
+            //更新username
+            if(username != null){
+                if(username.trim().length()>0){//传了username
+                    if(CollectionUtil.isLegalUsername(username)!=4){//格式不合法
+                        return 2;//fail
+                    }
+                    if(userRepository.isExistsThisUsername(username)>0){//已经存在该username
+                        return 3;//fail
+                    }
+                    //更新用户信息
+                    user = this.findOneByLoginUsersMap(request);//已经经过过滤器校验，user必然存在
+                    user.setUsername(username);
+                    userRepository.save(user);
+                    return 6; //success
+                }
+            }
         }
-        if(sex!=null){
-            user.setSex(Character.valueOf(sex));
-            userRepository.save(user);
-            return 1;//更新成功
-        }
-        return -1;//用户名不合法
+        return -1; //未知异常[原则上讲，程序逻辑不会运行到此处，也不会出现此情况]
     }
 
-    /* 创建新用户或者更新用户 */
+    /**
+     * 创建新用户或者更新用户
+     *  @param user
+     **/
     public boolean save(User user){
         User newUser = null;
         newUser = userRepository.save(user);

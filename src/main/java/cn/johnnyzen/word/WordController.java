@@ -27,6 +27,9 @@ import java.util.logging.Logger;
 public class WordController {
     private static final Logger logger = Logger.getLogger(WordController.class.getName());
 
+    //日志前缀字符串,方便通过日志定位程序
+    private static String logPrefix = null;
+
     @Autowired
     private WordService wordService;
 
@@ -55,7 +58,7 @@ public class WordController {
                                     @RequestParam(value = "authorityCode",required = true)String authorityCode,
                                     @RequestParam(value = "token",required = true) String token
     ){
-        String logPrefix = "[WordController.saveWordOfUser] ";
+        logPrefix = "[WordController.saveWordOfUser] ";
         int handle = wordService.saveWordOfUser(request, englishWord.trim(), chineseTranslate.trim(), authorityCode.trim());
         logger.info(logPrefix + "start exetuting...");
         if(handle == 0){

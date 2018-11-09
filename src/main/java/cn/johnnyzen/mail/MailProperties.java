@@ -38,15 +38,16 @@ public class MailProperties implements Serializable {
      **/
     private String host;
 
-    /*
+    /**
      * 邮件的主题(即 标题)
-     * */
+     */
     private String subject;
 
     private String senderEmail;
-    /*
+
+    /**
      * 发件人邮箱的授权码
-     **/
+     */
     private String authCode;
 
     public String getHost() {

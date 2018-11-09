@@ -27,8 +27,10 @@ public class NewWord implements Serializable{
     private Timestamp createNewWordDatetime;
     private Timestamp lastStoredDatetime;
     private Timestamp lastForgotDatetime;
+
     /* 遗忘次数 */
     private Byte forgetCount;
+
     /* 遗忘权重指数 */
     private Double forgetRate;
 

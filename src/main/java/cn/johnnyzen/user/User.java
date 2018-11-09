@@ -225,7 +225,10 @@ public class User  implements Serializable {
         this.authority = authority;
     }
 
-    //方便日志与测试
+    /**
+     * 仅输出用户名和Emai
+     *      方便日志与测试
+     */
     public String toStringJustUsernameAndEmail(){
         return "(username:" + this.username + " email: " + this.email + ")";
     }

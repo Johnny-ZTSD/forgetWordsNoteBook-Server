@@ -33,6 +33,9 @@ import java.util.logging.Logger;
 public class NewWordController {
     private static final Logger logger = Logger.getLogger(NewWordController.class.getName());
 
+    //日志前缀字符串,方便通过日志定位程序
+    private static String logPrefix = null;
+
     @Autowired
     private NewWordService newWordService;
 
@@ -50,7 +53,7 @@ public class NewWordController {
     public Result searchWords(HttpServletRequest request,
                               @RequestParam(value = "search",required = true) String search,
                               @RequestParam(value = "token",required = true) String token){
-        String logPrefix = "[NewWordController.searchWords()] ";
+        logPrefix = "[NewWordController.searchWords()] ";
         String message = "";
         Page<Word> words = null;
         words = newWordService.searchWords(request,search.trim());
@@ -79,7 +82,7 @@ public class NewWordController {
     public Result viewWord(HttpServletRequest request,
                               @RequestParam(value = "englishWord",required = true) String englishWord,
                               @RequestParam(value = "token",required = true) String token){
-        String logPrefix = "[NewWordController.viewWord()] ";
+        logPrefix = "[NewWordController.viewWord()] ";
         NewWord newWord = null;
         newWord = newWordService.findOneOfUserByExactSearch(request, englishWord.trim());
         if(newWord == null) {
@@ -107,7 +110,7 @@ public class NewWordController {
                            @RequestParam(value = "englishWord",required = true) String englishWord,
 //                           @RequestParam(value = "chineseTranslate",required = true) String chineseTranslate,
                            @RequestParam(value = "token",required = true) String token){
-        String logPrefix = "[NewWordController.saveNewWord] ";
+        logPrefix = "[NewWordController.saveNewWord] ";
         int handle = newWordService.saveNewWord(request, englishWord.trim());
         if(handle == 3){
             logger.info(logPrefix + "数据库中未存在该生词关系，且插入数据成功！");
@@ -133,7 +136,7 @@ public class NewWordController {
     public Result tagStoredWord(HttpServletRequest request,
                               @RequestParam(value = "id",required = true) Integer id,
                               @RequestParam(value = "token",required = true) String token){
-        String logPrefix = "[NewWordController.tagStoredWord] ";
+        logPrefix = "[NewWordController.tagStoredWord] ";
         int handle = newWordService.tagMemoryResultOfNewWord(request, id, "Stored");
         if(handle == 3){
             logger.info(logPrefix + "标记(ID:" + id + ")成功。");
@@ -162,7 +165,7 @@ public class NewWordController {
     public Result tagForgetWord(HttpServletRequest request,
                                 @RequestParam(value = "id",required = true) Integer id,
                                 @RequestParam(value = "token",required = true) String token){
-        String logPrefix = "[NewWordController.tagForgetWord] ";
+        logPrefix = "[NewWordController.tagForgetWord] ";
         int handle = newWordService.tagMemoryResultOfNewWord(request, id, "Forgeted");
         if(handle == 3){
             logger.info(logPrefix + "标记(ID:" + id + ")成功。");
@@ -191,7 +194,7 @@ public class NewWordController {
     public Result viewEverydayNewWords(HttpServletRequest request,
                                        @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                        @RequestParam(value = "token",required = true) String token){
-        String logPrefix = "[NewWordController.viewEverydayNewWords] ";
+        logPrefix = "[NewWordController.viewEverydayNewWords] ";
         Page<ViewWord> viewWords = null;
         viewWords = newWordService.viewEverydayNewWords(request,page);
         if(viewWords == null){
@@ -215,7 +218,7 @@ public class NewWordController {
     public Result viewOftenForgotWords(HttpServletRequest request,
                                 @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                 @RequestParam(value = "token",required = true) String token){
-        String logPrefix = "[NewWordController.viewOftenForgotWords] ";
+        logPrefix = "[NewWordController.viewOftenForgotWords] ";
         Page<ViewWord> viewWords = null;
         viewWords = newWordService.viewOftenForgotWords(request, page);
         if(viewWords == null){
@@ -237,7 +240,7 @@ public class NewWordController {
     @ResponseBody
     public Result viewDisorderdWords(HttpServletRequest request,
                                      @RequestParam(value = "token",required = true) String token) {
-        String logPrefix = "[NewWordController.viewDisorderdWords] ";
+        logPrefix = "[NewWordController.viewDisorderdWords] ";
         Page<ViewWord> viewWords = null;
         viewWords = newWordService.viewDisorderdWords(request);
         if(viewWords == null){

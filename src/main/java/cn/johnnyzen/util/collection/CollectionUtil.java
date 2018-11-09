@@ -23,6 +23,7 @@ public class CollectionUtil {
     @Transient //临时字段，映射时忽略
     private static final Logger logger = Logger.getLogger(User.class.getName());
 
+    //日志前缀字符串,方便通过日志定位程序
     private static String logPrefix= null;
 
     /**
@@ -50,6 +51,7 @@ public class CollectionUtil {
     /**
      * 判断性别(字段)是否合法
      *  Only： F(女) M(男) U(未知)
+     *  @param sex
      */
     public static boolean isLegalSex(Character sex){
         if(sex == null){ // 判空
@@ -65,6 +67,7 @@ public class CollectionUtil {
      * 判别密码正确性
      *  0.长度：[6,18]
      *  1.字符：仅数字和英文字母组成
+     *  @param password
      */
     public static int isLegalPassword(String password){
         logPrefix = "[CollectionUtil.isLegalPassword] ";
@@ -88,6 +91,7 @@ public class CollectionUtil {
      *  1.必须符合邮箱格式
      *  2.长度：[7,50]
      *  3.参考正则：^\w+@(\w+\.)+\w+$
+     *  @param email
      */
     public static int isLegalEmail(String email){
         logPrefix = "[CollectionUtil.isLegalEmail] ";
@@ -115,18 +119,19 @@ public class CollectionUtil {
 
     /**
      * 是否是中国的合法手机号
-     * @author yuongxi
-     * @reference https://blog.csdn.net/m18860232520/article/details/79396889
-     * 中国电信号段 133、149、153、173、177、180、181、189、199
-     * 中国联通号段 130、131、132、145、155、156、166、175、176、185、186
-     * 中国移动号段 134(0-8)、135、136、137、138、139、147、150、151、152、157、158、159、178、182、183、184、187、188、198
-     * 其他号段
-     * 14号段以前为上网卡专属号段，如中国联通的是145，中国移动的是147等等。
-     * 虚拟运营商
-     *  电信：1700、1701、1702
-     *  移动：1703、1705、1706
-     *  联通：1704、1707、1708、1709、171
-     *  卫星通信：1349
+     *  @author yuongxi
+     *  @reference https://blog.csdn.net/m18860232520/article/details/79396889
+     *      中国电信号段 133、149、153、173、177、180、181、189、199
+     *      中国联通号段 130、131、132、145、155、156、166、175、176、185、186
+     *      中国移动号段 134(0-8)、135、136、137、138、139、147、150、151、152、157、158、159、178、182、183、184、187、188、198
+     *      其他号段
+     *      14号段以前为上网卡专属号段，如中国联通的是145，中国移动的是147等等。
+     *      虚拟运营商
+     *          电信：1700、1701、1702
+     *          移动：1703、1705、1706
+     *          联通：1704、1707、1708、1709、171
+     *          卫星通信：1349
+     * @param phone
      */
     public static boolean isPhoneNumberOfChina(String phone){
         logPrefix = "[CollectionUtil.isPhoneNumberOfChina] ";
@@ -152,6 +157,7 @@ public class CollectionUtil {
      * 是否包含空格字符
      *  true：不包含任何空格字符
      *  false：包含空字符
+     * @param str
      */
     public static boolean isNotContainsBlankChar(String str){
         String logPrefix = "[CollectionUtil.isNotContainsBlankChar] ";
@@ -183,6 +189,10 @@ public class CollectionUtil {
         return str.matches("^[a-z0-9A-Z\\u4e00-\\u9fa5]+$");
     }
 
+    /**
+     * 判断字符串是否仅由26个英文字母、数字组成
+     * @param str
+     */
     public static boolean isOnlyContainsNumberAndEnglishAlpha(String str){
         if(str == null){
             return false;
@@ -190,6 +200,11 @@ public class CollectionUtil {
         return str.matches("^[a-z0-9A-Z]+$");
     }
 
+    /**
+     * 当前对象是否该列表里面的成员
+     * @param list
+     * @param item
+     */
     public static <T> boolean isItemInList(List<T> list, T item){
         Iterator iterator = null;
         iterator = list.iterator();
@@ -201,7 +216,13 @@ public class CollectionUtil {
         return false;
     }
 
-    /* 必须满足 一个字符串是另一个字符串的子集，如果不是子集，结果将出错 */
+    /**
+     * 求字符串差集
+     *  注1:方向，仅支持从前往后求差集
+     *  注2:必须满足 一个字符串是另一个字符串的子集，如果不是子集，结果将出错
+     *  @param strA
+     *  @param strB
+     */
     public static String minus(String strA, String strB){
         if(strA == null){
             return null;

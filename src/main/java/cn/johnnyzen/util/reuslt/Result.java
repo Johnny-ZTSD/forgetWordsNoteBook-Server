@@ -1,5 +1,7 @@
 package cn.johnnyzen.util.reuslt;
 
+import java.io.Serializable;
+
 /**
  * @IDE: Created by IntelliJ IDEA.
  * @Author: 千千寰宇
@@ -7,7 +9,7 @@ package cn.johnnyzen.util.reuslt;
  * @Description: 统一API响应结果封装
  */
 
-public class Result {
+public class Result implements Serializable {
     private int code = -1;
     /*
      * 对code解释

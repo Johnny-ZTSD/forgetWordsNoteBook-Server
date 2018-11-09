@@ -35,18 +35,23 @@ import java.util.logging.Logger;
 public class UserController {
     private static final Logger logger = Logger.getLogger(UserController.class.getName());
 
+    //日志前缀字符串,方便通过日志定位程序
+    private static String logPrefix = null;
+
     @Autowired
     private UserService userService;
 
     @Value("${file.staticRealRootPath}")
     private String staticRealRootPath;
 
-    /*
-     * @param token
+    /**
+     * 更新用户头像
+     * @param request
+     * <@param> token
      *          登陆校验过滤器校验登陆时，由于上传文件的form-data形式无法读取token；
      *          过滤器会从header中获取token；
      *          也即提醒：本方法的特殊处在于，获取token需要从header中获取
-     * @param logo
+     * @param logoFile
      * */
     @PostMapping(value = "/updateUserLogo/api")
     @ResponseBody
@@ -60,7 +65,7 @@ public class UserController {
 //            e.printStackTrace();
 //        }
         //即 实际地址：publicAccesssRootPath + "/user/logo" + imgName,such as:C:/Users/千千寰宇/Desktop/public/user/logo/a.jpg
-        int code=userService.updateUserLogoUrl(request,logoFile, staticRealRootPath + "/user/logo/");
+        int code = userService.updateUserLogoUrl(request,logoFile, staticRealRootPath + "/user/logo/");
         switch (code){
             case 1:
                 return ResultUtil.success("上传头像成功！");
@@ -76,7 +81,7 @@ public class UserController {
 
     /**
      * 更新用户信息
-     *  更新时可以选择的字段仅有这两个[可只传其中一个，或者两个参数均传]
+     *  更新时可以选择的字段仅有这两个[可只传其中一个，不可两个参数均传]
      * @param request
      * @param username
      * @param sex ['F':Female or 'M':Male]
@@ -87,22 +92,45 @@ public class UserController {
                                  @RequestParam(value = "username",required = false) String username,
                                  @RequestParam(value = "sex",required = false) Character sex,
                                  @RequestParam(value = "token",required = true) String token){
-        int code=userService.upudateUserInfo(request,username,sex);
-        switch (code){
-            case 1:
-                return ResultUtil.success("信息更新成功！");
-            case -1:
-                return ResultUtil.error(ResultCode.FAIL,"用户名格式不正确，请重新输入！");
-            default:
-                return ResultUtil.error(ResultCode.FAIL,"更新失败，原因未知");
+
+        logPrefix = "[UserController.updateUserInfo] ";
+
+        int code = userService.updateUserInfo(request, username, sex);
+        if(code == 6){
+            logger.info(logPrefix + "update username<" + username + "> success!");
+            return ResultUtil.success("更新用户名成功~");
+        } else if(code == 5){
+            logger.info(logPrefix + "update sex<" + sex + "> success!");
+            return ResultUtil.success("更新性别成功~");
+        } else if(code == 0){// sex and username is empty
+            logger.info(logPrefix + "username and sex is empty,update user's information fail!");
+            return ResultUtil.error(ResultCode.FAIL, "更新用户信息失败，一次必须设置且仅能设置一个信息值。");
+        } else if(code == 1){// both sex and username is not empty
+            logger.info(logPrefix + "both username<" + username + "> and sex<" + sex + "> is not empty,update user's information fail!");
+            return ResultUtil.error(ResultCode.FAIL, "更新用户信息失败，一次必须设置且仅能设置一个信息值。");
+        } else if(code == 2){//username's format is error
+            logger.info(logPrefix + "username<" + username + ">'s format is error,update user's information fail!");
+            return ResultUtil.error(ResultCode.FAIL, "更新用户信息失败，用户名格式错误！");
+        } else if(code == 3){//username has existed in database
+            logger.info(logPrefix + "username<" + username + ">'s has existed in database,update user's information fail!");
+            return ResultUtil.error(ResultCode.FAIL, "该用户名已被使用！");
+        } else if(code == 4){//sex's format is error
+            logger.info(logPrefix + "sex<" + sex + ">'s format is error,update user's information fail!");
+            return ResultUtil.error(ResultCode.FAIL, "更新用户信息失败，性别格式错误！");
+        } else {//-1 unkonwn error
+            logger.info(logPrefix + "unknown error.<" + username + "> and sex<" + sex + ">");
+            return ResultUtil.error(ResultCode.INTERNAL_SERVER_ERROR, "更新用户信息失败，服务器处理出现未知异常，可及时联系管理员！");
         }
     }
 
 
-    /*
+    /**
      * 重置密码
-     *
-     * 注：必须带token更改密码
+     *  注：必须带token更改密码
+     * @param request
+     * @param token
+     * @param oldPswd
+     * @param newPswd
      */
     @PostMapping(value = "/resetPassword/api")
     @ResponseBody
@@ -110,7 +138,7 @@ public class UserController {
                                 @RequestParam(value = "token",required = true) String token,
                                 @RequestParam(value = "oldPswd",required = true) String oldPswd,
                                 @RequestParam(value = "newPswd",required = true) String newPswd){
-        String logPrefix = "[UserController.resetPassword()] ";
+        logPrefix = "[UserController.resetPassword()] ";
         int result = userService.resetPassword(request,token,oldPswd,newPswd);
         switch(result){
             case 1:
@@ -141,16 +169,19 @@ public class UserController {
         }
     }
 
-    /*
-     * 从session中获取登陆用户基本信息
-     * token参数的检查，已移交LoginFilter
-     * */
+    /**
+     * 查看已登陆的用户个人信息
+     *      从session中获取登陆用户基本信息
+     *      token参数的检查，已移交LoginFilter
+     * @param request
+     * @param token
+     */
     @RequestMapping("/viewLoginUserInfo/api")
     @ResponseBody
     public Result viewLoginUserInfo(HttpServletRequest request,
                                     @RequestParam(value = "token", required = true) String token){
-        User user = null;
         logger.info("[UserController.viewLoginUserInfo] token" + token);
+        User user = null;
         user = userService.findOneByLoginUsersMap(request);
         if(user != null){
 //            user.setPassword("");
@@ -160,26 +191,31 @@ public class UserController {
         }
     }
 
-    /*
-     * 1.初次登陆[数据库查询 username|email + password]
-     * 2.非初次登陆，带token登陆
-     * 3.非初次登陆，带username|email登陆
-     * 4.账户状态是否为1
+    /**
+     * 登陆
+     *  1.初次登陆[数据库查询 username|email + password]
+     *  2.非初次登陆，带token登陆
+     *  3.非初次登陆，带username|email登陆
+     *  4.账户状态是否为1
      *
-     * 登陆成功：返回 用户基本信息
-     * 登陆失败：返回 空
+     *  登陆成功：返回 用户基本信息
+     *  登陆失败：返回 空
      *
-     * 注：登陆校验工作已移交LoginFilter，无需关注此点.
+     *  注：登陆校验工作已移交LoginFilter，无需关注此点.
+     *  @param request
+     *  @param token
+     *  @param username
+     *  @param password
+     *  @param email
      **/
     @PostMapping("/login/api")
     @ResponseBody
     public Result login(HttpServletRequest request,
-                        HttpServletResponse response,
                         @RequestParam(value = "token", required = false) String token,
                         @RequestParam(value = "username",required = false) String username,
                         @RequestParam("password") String password,
                         @RequestParam(value = "email",required = false) String email){
-        String logPrefix = "[UserController.login] ";
+        logPrefix = "[UserController.login] ";
         String message = null;
         String sessionId = request.getSession().getId();
 //        response.addHeader("JSESSIONIDLOGINAPI", sessionId);
@@ -208,9 +244,12 @@ public class UserController {
         }
     }
 
-    /*
+    /**
      * 用户注册
-     * 1.防止：email|username重复注册
+     *  1.防止：email|username重复注册
+     *  @param username
+     *  @param password
+     *  @param email
      **/
     @PostMapping("/register/api")
     @ResponseBody
@@ -236,9 +275,13 @@ public class UserController {
         }
     }
 
-    /*  激活来自于用户邮箱的html，一般不使用api/json
-     *  1.防止：用户多次激活，激活后销毁激活码
-     * */
+    /**
+     * 注册激活
+     *  激活来自于用户邮箱的html，一般不使用api/json
+     *      1.要防止：用户多次激活，激活后销毁激活码
+     *  @param session
+     *  @param code
+     **/
     @RequestMapping(value={"/register-activate"})
     public String registerActivate(
             HttpSession session,

@@ -12,12 +12,11 @@ import java.io.IOException;
  * @Author: 千千寰宇
  * @Date: 2018/10/7  15:51:28
  * @Description: ...
+ *      @Component:
+ *       将本Bean置入Spring容器中，形成绑定
+ *       把普通pojo实例化到spring容器中，相当于配置文件中的<bean id="" class=""/>
+ *       定义Spring管理Bean.
  */
- /* @Component:
-  *      将本Bean置入Spring容器中，形成绑定
-  *      把普通pojo实例化到spring容器中，相当于配置文件中的<bean id="" class=""/>
-  *      定义Spring管理Bean.
-  */
 @Component
 public class RequestUtil {
     @Autowired //从容器中取值，对类成员变量、方法及构造函数进行标注，完成自动装配的工作。
@@ -41,6 +40,10 @@ public class RequestUtil {
         return false;
     }
 
+    /**
+     * 通过url获取第三方的HTML/JSON等网络响应文档(数据)
+     * @param url
+     */
     public Document getDocument(String url) throws IOException {
         Document doc = null;
         doc = Jsoup.connect(url)

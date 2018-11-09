@@ -14,11 +14,11 @@ import javax.servlet.Filter;
  * @Author: 千千寰宇
  * @Date: 2018/10/7  02:14:32
  * @Description: ...
-    在springboot添加过滤器有两种方式：
-　　1、通过创建FilterRegistrationBean的方式
-    （建议使用此种方式，统一管理，且通过注解的方式若不是本地调试，如果在filter中需要增加cookie可能会存在写不进前端情况）
-　　2、通过注解@WebFilter的方式
-    3、order值越小，越先执行
+ *   在springboot添加过滤器有两种方式：
+ *　1、通过创建FilterRegistrationBean的方式
+ *  （建议使用此种方式，统一管理，且通过注解的方式若不是本地调试，如果在filter中需要增加cookie可能会存在写不进前端情况）
+ *　2、通过注解@WebFilter的方式
+ *  3、order值越小，越先执行
  */
 @Configuration
 public class WebComponent2Config {

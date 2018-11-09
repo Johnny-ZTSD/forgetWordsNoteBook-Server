@@ -39,9 +39,9 @@ public class MailUtil implements Runnable {
         this.activateCode = activateCode;
     }
 
-    /*
+    /**
      * 仅当 reciverEmail 和 activateCode配置完成，方可运行成功
-     * */
+     */
     public void run() {
         if(activateCode == null || reciverEmail == null){
             throw new RuntimeException("[MailUtil.run] activateCode or reciverEmail is empty!");

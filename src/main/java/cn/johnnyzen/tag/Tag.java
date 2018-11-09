@@ -26,10 +26,11 @@ public class Tag implements Serializable {
 
     private String name;
 
-    /*
+    /**
+     * 拥有该标签的所有用户
      * @param String: User.username
      * @param User: User
-     * */
+     **/
     //在不需要的转化json的属性上面设置@JsonIgnore，避免出现无线循环
     @JsonIgnore
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
@@ -40,10 +41,11 @@ public class Tag implements Serializable {
             inverseJoinColumns={@JoinColumn(name="fk_ubt_tag_id")})
     private Set<User> users = new HashSet<User>();
 
-    /*
-     * @param String: User.username
+    /**
+     *  拥有该标签的所有词汇
+     *  @param String: User.username
      * @param User: User
-     * */
+     */
     //在不需要的转化json的属性上面设置@JsonIgnore，避免出现无线循环
     @JsonIgnore
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)

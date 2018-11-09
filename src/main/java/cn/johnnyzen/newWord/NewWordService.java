@@ -40,6 +40,9 @@ import java.util.logging.Logger;
 public class NewWordService {
     private static final Logger logger = Logger.getLogger(NewWordService.class.getName());
 
+    //日志前缀字符串,方便通过日志定位程序
+    private static String logPrefix = null;
+
     @Autowired
     private NewWordRepository newWordRepository;
 
@@ -72,7 +75,7 @@ public class NewWordService {
      * @param search 搜索的英文单词
      */
     public Page<Word> searchWords(HttpServletRequest request,String search){
-        String logPrefix = "[NewWordService.searchWords] ";
+        logPrefix = "[NewWordService.searchWords] ";
         Collection<Word> thirdWords = null; //第三方单词
         Collection<Word> wordsOfNotUserFromDB = null; //来自于数据库的非用户的生词
         List<Word> userNewWords = null; //用户生词
@@ -132,8 +135,13 @@ public class NewWordService {
         return wordsPage;
     }
 
-    public Collection<NewWord> findAllByUserId(Integer id){
-        return newWordRepository.findAllByUserId(id);
+
+    /**
+     * 通过用户ID，获取用户所有生词
+     * @param userId
+     */
+    public Collection<NewWord> findAllByUserId(Integer userId){
+        return newWordRepository.findAllByUserId(userId);
     }
 
     /**
@@ -145,7 +153,7 @@ public class NewWordService {
      * @param request
      */
     public Collection<Word> findAllWordsOfUserByRequest(HttpServletRequest request){
-        String logPrefix = "[NewWordService.findAllWordsOfUserByRequest] ";
+        logPrefix = "[NewWordService.findAllWordsOfUserByRequest] ";
         User user = null;
         user = userService.findOneByLoginUsersMap(request);
         //user登陆校验已通过过滤器实现，无需再校验。
@@ -176,7 +184,7 @@ public class NewWordService {
      * @return Collection<Word>
      */
     public Collection<Word> findAllWordsOfUserByFuzzySearch(HttpServletRequest request,String englishWord){
-        String logPrefix = "[NewWordService.findAllWordsOfUserByFuzzySearch] ";
+        logPrefix = "[NewWordService.findAllWordsOfUserByFuzzySearch] ";
         User user = null;
         user = userService.findOneByLoginUsersMap(request);
         //user登陆校验已通过过滤器实现，无需再校验。
@@ -207,7 +215,7 @@ public class NewWordService {
      * @return Collection<Word>
      */
     public NewWord findOneOfUserByExactSearch(HttpServletRequest request,String englishWord){
-        String logPrefix = "[NewWordService.findAllWordsOfUserByFuzzySearch] ";
+        logPrefix = "[NewWordService.findAllWordsOfUserByFuzzySearch] ";
         User user = null;
         user = userService.findOneByLoginUsersMap(request);
         //user登陆校验已通过过滤器实现，无需再校验。
@@ -234,8 +242,7 @@ public class NewWordService {
      *  @param request [use: token]
      */
     public int saveNewWord(HttpServletRequest request,String englishWord){
-        String logPrefix = "[NewWordService.saveNewWord] ";
-
+        logPrefix = "[NewWordService.saveNewWord] ";
         Collection<Word> dbWords = null;
         dbWords = wordRepository.findDistinctFirstByEnglishWord(englishWord);
         if(dbWords.size() < 1){//数据库无记录
@@ -283,13 +290,14 @@ public class NewWordService {
             return 3;
         }
     }
-    /*
-     * @method 删除生词
-     * @author
+
+    /**
+     * 删除生词
+     * @param request
+     * @param englishWord
      */
     public int deleteWords(HttpServletRequest request,String englishWord){
-        //String logPrefix = "[NewWordService.deleteWords] ";
-
+        logPrefix = "[NewWordService.deleteWords] ";
         User user=userService.findOneByLoginUsersMap(request);
         NewWord newWord=null;
         newWord=newWordRepository.findDistinctFirstByUserIdAndEnglishWord(user.getId(),englishWord);
@@ -299,6 +307,7 @@ public class NewWordService {
         }
         return -1;//不存在此生词关系
     }
+
     /**
      * 标记生词记忆结果
      *      即 标记仍记得/已遗忘词汇
@@ -311,12 +320,12 @@ public class NewWordService {
      *              标记失败，用户操作违法，返回 2
      *     3.更新生词的记忆时间、遗忘权重指数。
      *          标记成功，返回 3
-     *    @param request [use:token]
-     *    @param newWordId 生词ID
-     *    @param tagType ["Forgeted", "Stored"] 标记类型[已遗忘或者仍记得],区分大小写
+     * @param request [use:token]
+     * @param newWordId 生词ID
+     * @param tagType ["Forgeted", "Stored"] 标记类型[已遗忘或者仍记得],区分大小写
      */
     public int tagMemoryResultOfNewWord(HttpServletRequest request, Integer newWordId, String tagType){
-        String logPrefix = "[NewWordService.tagMemoryResultOfNewWord] ";
+        logPrefix = "[NewWordService.tagMemoryResultOfNewWord] ";
         NewWord newWord = null;
         newWord = newWordRepository.findNewWordById(newWordId);
         if(newWord == null){
@@ -366,7 +375,7 @@ public class NewWordService {
 
     /**
      * 获取用户的高频忘词[forgetRate Top 300]
-     * @author request
+     * @param request
      * @param page
      */
     public Page<ViewWord> viewOftenForgotWords(HttpServletRequest request, Integer page){
@@ -460,6 +469,11 @@ public class NewWordService {
         }
     }
 
+    /**
+     * (第三方接口的)翻译
+     * @return words [第三方翻译单词结果集]
+     * @param englishWord
+     */
     public List<Word> translate(String englishWord) throws IOException {
         String logPrefix = "[NewWordService.translate] ";
         StringBuilder url = new StringBuilder("http://fanyi.youdao.com/translate?&doctype=json&type=AUTO&i=");
@@ -493,12 +507,11 @@ public class NewWordService {
         }
     }
 
-    /*
+    /**
      * 计算遗忘权值
-     * <对double calculateForgetRate(Calendar,Calendar,Calendar)的重载>
-     *
-     * @param lastForgetDate(距最近遗忘的天数) as nDate
-     * @param lastStoredDate(距最近记忆的天数) as mDate
+     *  <对double calculateForgetRate(Calendar,Calendar,Calendar)的重载>
+     * @param lastForgetDate (距最近遗忘的天数) as nDate
+     * @param lastStoredDate (距最近记忆的天数) as mDate
      * @param forgetCount int as s
      */
     public double calculateForgetRate(Timestamp lastForgetDate,Timestamp lastStoredDate,int forgetCount){
@@ -508,12 +521,11 @@ public class NewWordService {
         return calculateForgetRate(lastForgetDays, lastStoredDays, forgetCount);
     }
 
-    /*
+    /**
      * 计算遗忘权值
-     * <对double calculateForgetRate(int,int,int)的重载>
-     *
-     * @param lastForgetDate(距最近遗忘的天数) as nDate
-     * @param lastStoredDate(距最近记忆的天数) as mDate
+     *  <对double calculateForgetRate(int,int,int)的重载>
+     * @param lastForgetDate (距最近遗忘的天数) as nDate
+     * @param lastStoredDate (距最近记忆的天数) as mDate
      * @param forgetCount int as s
      */
     public double calculateForgetRate(Calendar lastForgetDate,Calendar lastStoredDate,int forgetCount){
@@ -523,13 +535,13 @@ public class NewWordService {
         return calculateForgetRate(lastForgetDays, lastStoredDays, forgetCount);
     }
 
-    /*
+    /**
      * 计算遗忘权值
      *      单位：天
      *      r = 10/n + 7*s -15/m
      *
-     * @param lastForgetDays(距最近遗忘的天数,not 0) int as n
-     * @param lastStoredDays(距最近记忆的天数, not 0) int as m
+     * @param lastForgetDays (距最近遗忘的天数,not 0) int as n
+     * @param lastStoredDays (距最近记忆的天数, not 0) int as m
      * @param forgetCount int as s
      */
     public double calculateForgetRate(int lastForgetDays, int lastStoredDays, int forgetCount){

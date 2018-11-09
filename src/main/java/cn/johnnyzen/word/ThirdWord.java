@@ -6,7 +6,7 @@ import java.io.Serializable;
  * @IDE: Created by IntelliJ IDEA.
  * @Author: 千千寰宇
  * @Date: 2018/11/3  10:10:34
- * @Description: ...
+ * @Description: 第三方单词翻译接口的实体对象
  */
 
 public class ThirdWord  implements Serializable {

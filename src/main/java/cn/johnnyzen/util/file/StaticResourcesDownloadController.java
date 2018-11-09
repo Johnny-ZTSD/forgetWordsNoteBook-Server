@@ -22,17 +22,25 @@ import java.util.logging.Logger;
 public class StaticResourcesDownloadController {
     private static final Logger logger = Logger.getLogger(StaticResourcesDownloadController.class.getName());
 
+    //日志前缀字符串,方便通过日志定位程序
+    private static String logPrefix = null;
+
     //文件上传/下载根目录（注意Linux和Windows上的目录结构不同）
     //Eg for Linux: file.uploadFolder=/root/uploadFiles/
     //Eg for Windows: file.uploadFolder=d://uploadFiles/
     @Value("${file.staticRealRootPath}")
     private String staticRealRootPath;
 
-    //文件资源下载
+    /**
+     * 服务器文件资源下载
+     *  主要针对存在于服务器硬盘的文件资源下载
+     *  @param request
+     *  @param response
+     */
     @RequestMapping("/public/**")//前者是开放的根目录，后者是动态变化的具体访问目录<与实际服务器路径一一对应>
     public String downloadFile(HttpServletRequest request,
                                HttpServletResponse response) {
-        String logPrefix = "[StaticResourcesDownloadController.downloadFile] ";
+        logPrefix = "[StaticResourcesDownloadController.downloadFile] ";
         String url = request.getRequestURL().toString();
 //        fileName = fileName + "." + fileSuffixName;// 设置文件名，根据业务需要替换成要下载的文件名
         String fileName = null;
@@ -87,7 +95,6 @@ public class StaticResourcesDownloadController {
                             e.printStackTrace();
                         }
                     }
-                    logger.info( logFormat + " success.");
                 }
             } else {
                 logger.info(logFormat + " fail,because it doesn't exists.");

@@ -20,6 +20,9 @@ import java.util.logging.Logger;
 public class WordService {
     private static final Logger logger = Logger.getLogger(WordService.class.getName());
 
+    //日志前缀字符串,方便通过日志定位程序
+    private static String logPrefix = null;
+
     @Autowired
     private UserService userService;
 
@@ -57,7 +60,7 @@ public class WordService {
                                  String englishWord,
                                  String chineseTranslate,
                                  String authorityCode){
-        String logPrefix = "[WordService.saveWordOfUser] ";
+        logPrefix = "[WordService.saveWordOfUser] ";
         User user = null;
         Word word = null;
 

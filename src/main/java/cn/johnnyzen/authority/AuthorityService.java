@@ -15,6 +15,10 @@ import java.util.logging.Logger;
 @Service("authorityService")
 public class AuthorityService {
     private static final Logger logger = Logger.getLogger(AuthorityService.class.getName());
+
+    //日志前缀字符串,方便通过日志定位程序
+    private static String logPrefix = null;
+
     @Autowired
     private AuthorityRepository authorityRepository;
 
@@ -28,7 +32,7 @@ public class AuthorityService {
      * @param action Controller层的数据接口的URL映射路径，形如"/saveNewWordOfUser/api"
      */
     public boolean hasOperationAuthorityOfUser(Integer userId, String authorityCode, String action){
-        String logPrefix = "[AuthorityService.hasOperationAuthorityOfUser] ";
+        logPrefix = "[AuthorityService.hasOperationAuthorityOfUser] ";
         String dbAuthrityType = null;//数据库中的权限类型字段
         String []authorities = null; //所有的操作权限
         dbAuthrityType = authorityRepository.findAuthorityTypeOfUserByUserIdAndAndAuthorityCode(userId,authorityCode).trim();

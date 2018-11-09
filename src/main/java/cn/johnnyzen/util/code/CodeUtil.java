@@ -42,7 +42,7 @@ public class CodeUtil {
 
     /**
      * 自动生成32位的UUid，对应数据库的主键id进行插入用。
-     * @return
+     * @return uuid
      */
     public static String getUUID() {
     /*UUID uuid = UUID.randomUUID();

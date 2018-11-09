@@ -31,7 +31,9 @@ public class Word  implements Serializable {
     @OneToMany(mappedBy = "word")
     private Collection<NewWord> newWords;
 
-    //临时展示给前端的数据，如：遗忘次数、遗忘天数等
+    /**
+     * 临时展示给前端的数据，如：遗忘次数、遗忘天数等
+     */
     @Transient
     private String tmpData;
 

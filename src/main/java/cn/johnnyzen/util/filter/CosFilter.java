@@ -17,7 +17,8 @@ import java.util.logging.Logger;
  * @Date: 2018/10/7  17:00:46
  * @Description: 跨域过滤器
  * @Reference
- *      [1] 跨域资源共享 CORS 详解 http://www.ruanyifeng.com/blog/2016/04/cors.html
+ *      [1] 跨域资源共享  CORS 详解 http://www.ruanyifeng.com/blog/2016/04/cors.html
+ *      [2] 跨域问题小结[推荐]      https://www.cnblogs.com/johnnyzen/p/9930295.html
  */
 
 //@Component
@@ -25,15 +26,24 @@ import java.util.logging.Logger;
 public class CosFilter implements Filter {
     private static final Logger logger = Logger.getLogger(LoginFilter.class.getName());
 
+    //日志前缀字符串,方便通过日志定位程序
+    private static String logPrefix = null;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         logger.info("[CosFilter.init()] ...");
     }
 
+    /**
+     * 跨域过滤器执行方法
+     * @param req
+     * @param res
+     * @param filterChain
+     */
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain) throws
             IOException, ServletException {
-        String logPrefix = "[CosFilter.doFilter] ";
+        logPrefix = "[CosFilter.doFilter] ";
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest reqs = (HttpServletRequest) req;
         response.setHeader("Access-Control-Allow-Origin", reqs.getHeader("Origin"));//也可是 *，但不是太安全

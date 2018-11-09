@@ -14,15 +14,33 @@ import java.util.List;
 
 public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
 
-    //通过生词ID查对应生词
+    /**
+     * 通过生词ID查对应生词
+     * @param id
+     */
     public NewWord findNewWordById(Integer id);
 
+    /**
+     * 通过用户ID，查找用户的所有生词
+     * @param userId
+     */
     public Collection<NewWord> findAllByUserId(Integer userId);
 
-    /* 原生SQL查询：对指定用户的所有生词进行模糊查询。
-     * reference:
+
+    /**
+     * 查找用户的所有生词
+     * @param user
+     */
+    public Collection<NewWord> findAllByUser(User user);
+
+    /**
+     * 通过用户ID+模糊匹配该用户所有的符合条件的生词
+     *      原生SQL查询：对指定用户的所有生词进行模糊查询。
+     * @reference
      *      https://blog.csdn.net/lovequanquqn/article/details/83501121
      *      https://www.cnblogs.com/zxlovenet/p/4005256.html
+     * @param userId
+     * @param englishWord
      */
     @Query(value =
             " SELECT *" +
@@ -34,7 +52,8 @@ public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
             nativeQuery = true)
     public Collection<NewWord> findNewWordsLikeByUserIdAndEnglishWord(@Param("userId") Integer userId, @Param("englishWord") String englishWord);
 
-    /* 对指定用户(userId)的所有生词中查询指定单词(englishWord)
+    /**
+     * 对指定用户(userId)的所有生词中查询指定单词(englishWord)
      * @param userId
      * @param englishWord
      */
@@ -51,13 +70,16 @@ public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
     @Query("select newWord from NewWord newWord where newWord.user.email = :email")
     public Collection<NewWord> findAllByEmail(@Param("email") String email);
 
-    /*
+    /**
      * 查询用户最近days天新增的单词
      * @reference
      *      1 JPA自定义sql实现分页查询
      *          http://blog.51cto.com/1385903/2058646
      *      2 Spring Hibernate JPA 联表查询 复杂查询
      *          https://www.cnblogs.com/jiangxiaoyaoblog/p/5635152.html
+     * @param userId
+     * @param days
+     * @param pageable
      */
     @Query(value =
             " select * from ( " +
@@ -84,9 +106,9 @@ public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
 
     /**
      * 根据用户ID，SQL乱序查询生词
-     *
+     * @param userId
+     * @param pageable
      */
-//    @Query(value = "select newWord from NewWord newWord where newWord.user.id = :userId order by RAND()")
     @Query( value =
             "select * from ( " +
             " select * from tb_user as usr,r_user_focus_word as newWord,tb_word as word " +
@@ -116,38 +138,44 @@ public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
 //            " where tmp_tb.pk_user_id = :userId ORDER BY tmp_tb.:searchType :sortType")
 //    public Page<NewWord> findAllBySortRuleOfUser(@Param("userId")Integer userId,@Param("searchType")String searchType,@Param("sortType")String sortType, Pageable pageable);
 
-    /*
+    /**
      * 通过用户id，按照遗忘次数查询用户所有生词
-     * 注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     *  注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     * @param userId
+     * @param pageable
      */
     public Page<NewWord> findAllByUserIdOrderByForgetCount(@Param("userId")Integer userId, Pageable pageable);
     public Page<NewWord> findAllByUserIdOrderByForgetCountAsc(@Param("userId")Integer userId, Pageable pageable);
     public Page<NewWord> findAllByUserIdOrderByForgetCountDesc(@Param("userId")Integer userId, Pageable pageable);
 
-    /*
+    /**
      * 通过用户id，按照遗忘权重指数查询用户所有生词
-     * 注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     *  注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     * @param userId
+     * @param pageable
      */
     public Page<NewWord> findAllByUserIdOrderByForgetRate(@Param("userId")Integer userId, Pageable pageable);
     public Page<NewWord> findAllByUserIdOrderByForgetRateAsc(@Param("userId")Integer userId, Pageable pageable);
     public Page<NewWord> findAllByUserIdOrderByForgetRateDesc(@Param("userId")Integer userId, Pageable pageable);
 
-    /*
+    /**
      * 通过用户id，按照最近遗忘生词的时间查询用户所有生词
-     * 注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     *  注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     * @param userId
+     * @param pageable
      */
     public Page<NewWord> findAllByUserIdOrderByLastForgotDatetime(@Param("userId")Integer userId, Pageable pageable);
     public Page<NewWord> findAllByUserIdOrderByLastForgotDatetimeAsc(@Param("userId")Integer userId, Pageable pageable);
     public Page<NewWord> findAllByUserIdOrderByLastForgotDatetimeDesc(@Param("userId")Integer userId, Pageable pageable);
 
-    /*
+    /**
      * 通过用户id，按照最近仍记得的生词的时间查询用户所有生词
      * 注：具备JPA命名规范的DAO方法，返回Page分页时，不需要另外配置@Query(countQuery)
+     * @param userId
+     * @param pageable
      */
     public Page<NewWord> findAllByUserIdOrderByLastStoredDatetime(@Param("userId")Integer userId, Pageable pageable);
     public Page<NewWord> findAllByUserIdOrderByLastStoredDatetimeAsc(@Param("userId")Integer userId, Pageable pageable);
     public Page<NewWord> findAllByUserIdOrderByLastStoredDatetimeDesc(@Param("userId")Integer userId, Pageable pageable);
-
-    public Collection<NewWord> findAllByUser(User user);
 
 }
