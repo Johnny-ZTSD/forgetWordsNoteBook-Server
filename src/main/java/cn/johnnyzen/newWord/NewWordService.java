@@ -382,10 +382,36 @@ public class NewWordService {
         User user = null;
         user = userService.findOneByLoginUsersMap(request);
         Page<NewWord> newWords= null;
-        newWords = newWordRepository.findNewWordsOfForgetRateTopByUserId(user.getId(), new PageRequest( page < 1 ? 0 : page - 1, 50));
-        //将获取的生词NewWord转换为ViewWord
-        Page<ViewWord> viewWords = new PageImpl<ViewWord>(ViewWord.newWordsToViewWords(newWords.getContent()));
-        return viewWords;
+        Page<ViewWord> viewWords = null;
+        if(page>0 && page < 7) { //page in [1,6]页时查询成功
+            newWords = newWordRepository.findNewWordsOfForgetRateTopByUserId(user.getId(), new PageRequest(page < 1 ? 0 : page - 1, 50));
+            //将获取的生词NewWord转换为ViewWord
+            viewWords = new PageImpl<ViewWord>(ViewWord.newWordsToViewWords(newWords.getContent()));
+        } else {//page值不合法
+            logger.info(logPrefix + "page<" + page + "> is illegal,just in [1,6]!");
+        }
+
+        return viewWords;//null or 0 record or some records
+    }
+
+    /**
+     * 查询某单词是否是高频遗忘词汇
+     *    算法：
+     *      查找用户信息，获取用户id；
+     *      查询数据库该单词是否在遗忘指数top300以内
+     *          如果  在，返回 1；[是高频遗忘词汇]
+     *          如果不在，返回 0；[不是高频遗忘词汇]
+     * @param request
+     * @param englishWord
+     */
+    public int isOftenForgotWords(HttpServletRequest request, String englishWord){
+        logPrefix = "[NewWordService.IsOftenForgotWords] ";
+        int result = 0;
+        User user = null;
+        user = userService.findOneByLoginUsersMap(request); // get user
+        result = newWordRepository.isNewWordsOfForgetRateTopByUserId(user.getId(), 300, englishWord.trim());
+        logger.info(logPrefix + "englishWord<" + result + "> is OftenForgotWord?result:" + result); // log
+        return result>0?1:0; // 1[yes] or 0[no]
     }
 
     /**
@@ -437,6 +463,10 @@ public class NewWordService {
             viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByForgetCountDesc(user.getId(), pageable).getContent());
             viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
             logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | ForgetCount & DESC | count:" + viewWords.size()  + ">");
+            System.out.println(logPrefix + "[viewForgetWords:ForgetCount+DESC] viewWords:");
+            for(ViewWord item:viewWords){
+                System.out.println(viewWords);
+            }
             return viewWordsPage;
         } else if(searchType.equals("ForgetCount") && sortType.equals("ASC")){
             viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByForgetCountAsc(user.getId(), pageable).getContent());

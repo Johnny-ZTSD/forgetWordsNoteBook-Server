@@ -34,11 +34,36 @@ public class NewWord implements Serializable{
     /* 遗忘权重指数 */
     private Double forgetRate;
 
+    /**
+     * 生词是否复习
+     *  recite = false 0# 未复习
+     *  recite = true # 已复习
+     *​ [说明] 后端设置初始值为未复习状态;
+     *        用户复习每日生词或者高频忘词完后，方便前端对已复习和未复习做分类显示）
+     *        数据库固定值，暂不会被后端业务逻辑使用，主要为前端界面显示服务
+     *  [坑点]1.is开头的JavaBean属性的setter与getter方法必须命名为：setRecite()、isRecite()
+     *          否则JPA(Hibernate)等框架加载不了。
+     */
+    private boolean isRecite;
+
+    /**
+     * 生词是否应存在
+     * [说明] 后端设置初始值为存在;
+     *        方便前端对删除单词通过状态字段控制显示词汇是否​
+     *        数据库固定值，暂不会被后端业务逻辑使用，主要为前端界面显示服务
+     *  [坑点]1.is开头的JavaBean属性的setter与getter方法必须命名为：setExists()、isExists()
+     *          否则JPA(Hibernate)等框架加载不了。
+     */
+    private boolean isExists;
+
     @JsonIgnore
     private User user;
 
     @JsonIgnore
     private Word word;
+
+    public NewWord() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -99,6 +124,26 @@ public class NewWord implements Serializable{
 
     public void setForgetRate(Double forgetRate) {
         this.forgetRate = forgetRate;
+    }
+
+    @Basic
+    @Column(name = "is_recite", nullable = false,columnDefinition="bit default 0")
+    public boolean isRecite() {
+        return isRecite;
+    }
+
+    public void setRecite(boolean recite) {
+        isRecite = recite;
+    }
+
+    @Basic
+    @Column(name = "is_exists", nullable = false, columnDefinition="bit default 1")//<java,boolean> = <mysql/hibernate, bit>
+    public boolean isExists() {
+        return isExists;
+    }
+
+    public void setExists(boolean exists) {
+        isExists = exists;
     }
 
     @Override
@@ -165,6 +210,8 @@ public class NewWord implements Serializable{
                 ",\n\t lastForgotDatetime=" + lastForgotDatetime +
                 ",\n\t forgetCount=" + forgetCount +
                 ",\n\t forgetRate=" + forgetRate +
+                ",\n\t isRecite=" + isRecite +
+                ",\n\t isExists=" + isExists +
 //                ",\n\t user=" + user +
 //                ",\n\t word=" + word +
                 '}';

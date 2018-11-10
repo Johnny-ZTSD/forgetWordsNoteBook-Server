@@ -28,7 +28,7 @@ public class CollectionUtil {
 
     /**
      * 判断用户名是否合法
-     *  1.长度：[6,18]
+     *  1.长度：[3,18]
      *  2.字符：仅由数字、英文26字母、中文组成
      */
     public static int isLegalUsername(String username){
@@ -37,8 +37,8 @@ public class CollectionUtil {
             logger.info(logPrefix + " username<" + username + "> is null,so it is illegal format!");
             return 1;
         }
-        if(username.length() < 6 || username.length() > 18){
-            logger.info(logPrefix + " username<" + username + ">'s length is not in [6,18],so it is illegal format!");
+        if(username.length() < 3 || username.length() > 18){
+            logger.info(logPrefix + " username<" + username + ">'s length is not in [3,18],so it is illegal format!");
             return 2;
         }
         if(!isOnlyContainsChineseAndNumberAndEnglishAlpha(username)){//除了中文、英文字母、数字外还包含其他字符

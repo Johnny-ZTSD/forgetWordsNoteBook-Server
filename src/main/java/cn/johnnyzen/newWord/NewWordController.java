@@ -222,13 +222,39 @@ public class NewWordController {
         Page<ViewWord> viewWords = null;
         viewWords = newWordService.viewOftenForgotWords(request, page);
         if(viewWords == null){
-            logger.info(logPrefix + "该用户无高频遗忘词。");
-            return ResultUtil.success("该用户无高频遗忘词。");
+            logger.info(logPrefix + "可能是page值取错，不在取值范围中。");
+            return ResultUtil.error(ResultCode.FAIL, "Page参数取值不在[1,6]中。");
         } else {
             logger.info(logPrefix + "获取用户高频遗忘词成功!");
             return ResultUtil.success("获取用户高频遗忘词成功!", viewWords);
         }
     }
+
+    /**
+     * 查询某词汇是否是高频生词
+     * @param request
+     * @param englishWord
+     * @param token
+     */
+    @RequestMapping(value = "isOftenForgotWords/api")
+    @ResponseBody
+    public Result IsOftenForgotWords(HttpServletRequest request,
+                                     @RequestParam(value = "token",required = true) String token,
+                                     @RequestParam(value = "englishWord",required = true) String englishWord
+                                     ){
+        logPrefix = "[NewWordController.isOftenForgotWords] ";
+        int handle = newWordService.isOftenForgotWords(request, englishWord);
+        String message = "";
+        if(handle == 1){
+            message = englishWord.trim() + "是高频忘词。";
+            logger.info(logPrefix + message);
+            return ResultUtil.success(message, new Boolean(true));
+        } else {
+            message = englishWord.trim() + "不是高频忘词。";
+            return ResultUtil.success(message, new Boolean(false));//查询并处理成功，故 success
+        }
+    }
+
 
     /**
      * 查看乱序词汇

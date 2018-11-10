@@ -100,9 +100,26 @@ public interface NewWordRepository extends JpaRepository<NewWord, Integer> {
      * @param userId 用户ID
      * @param pageable 分页器
      */
-    @Query(value = "select newWord from NewWord newWord where newWord.user.id = :userId order by newWord.forgetRate",
-            countQuery = "select count(newWord) from NewWord newWord where newWord.user.id = :userId order by newWord.forgetRate")
+    @Query( value = "SELECT * FROM r_user_focus_word as newWord WHERE newWord.fk_ufw_user_id = :userId ORDER BY newWord.forget_rate",
+            nativeQuery = true,
+            countQuery = "SELECT COUNT(*) FROM r_user_focus_word as newWord WHERE newWord.fk_ufw_user_id = :userId ORDER BY newWord.forget_rate")
     public Page<NewWord> findNewWordsOfForgetRateTopByUserId(@Param("userId") Integer userId, Pageable pageable);
+
+    /**
+     * 根据用户ID，通过englishWord是否在查询按照forgetRate值降序排序的生词记录的top xxx之中
+     *  实现：通过userId查询某单词englishWord是否属于用户的高频忘词(top default:300)
+     * @param userId
+     * @param top
+     * @param englishWord
+     */
+    @Query(value = " select count(*) " +
+            " from ( " +  // 嵌套查询
+            " select * " + // 连接查询
+            " from tb_word as word, r_user_focus_word as newWord,tb_user as usr " +
+            " WHERE word.pk_word_id = newWord.fk_ufw_word_id and usr.pk_user_id = newWord.fk_ufw_user_id LIMIT 0,:top) as tb " +
+            " where tb.pk_user_id = :userId and tb.english_word = :englishWord ",
+            nativeQuery = true)
+    public Integer isNewWordsOfForgetRateTopByUserId(@Param("userId") Integer userId,@Param("top") int top, @Param("englishWord") String englishWord);
 
     /**
      * 根据用户ID，SQL乱序查询生词

@@ -36,10 +36,15 @@ public class NewWordRepositoryTest {
         }
     }
 
-//    @Test
+    //@Test
+    public void testIsNewWordsOfForgetRateTopByUserId(){
+        System.out.println("testIsNewWordsOfForgetRateTopByUserId:" + newWordRepository.isNewWordsOfForgetRateTopByUserId(1,300,"test"));
+    }
+
+   @Test
     public void testFindNewWordsOfForgetRateTopByUserId(){
         Pageable pageable = new PageRequest(0,50);
-        List<NewWord> newWordList = newWordRepository.findNewWordsOfForgetRateTopByUserId(1,pageable).getContent();
+        List<NewWord> newWordList = newWordRepository.findNewWordsOfForgetRateTopByUserId(1, pageable).getContent();
         Iterator<NewWord> nwIter = null;
         nwIter = newWordList.iterator();
         while(nwIter.hasNext()){
@@ -58,7 +63,7 @@ public class NewWordRepositoryTest {
 //        }
 //    }
 
-    @Test
+    //@Test
     public void testFindAllBySortRuleOfUser(){
         Pageable pageable = new PageRequest(0,50);
         List<NewWord> newWordList = newWordRepository.findAllByUserIdOrderByForgetCount(1, pageable).getContent();

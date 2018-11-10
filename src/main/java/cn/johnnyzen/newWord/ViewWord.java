@@ -24,6 +24,8 @@ public class ViewWord implements Serializable {
     private Byte forgetCount;
     /* 遗忘权重指数 */
     private Double forgetRate;
+    private boolean isRecite;
+    private boolean isExists;
 
     /* 单词ID */
     private Integer wordId;
@@ -47,6 +49,9 @@ public class ViewWord implements Serializable {
         this.setLastForgotDatetime(newWord.getLastForgotDatetime());
         this.setForgetCount(newWord.getForgetCount());
         this.setForgetRate(newWord.getForgetRate());
+        this.setRecite(newWord.isRecite());
+        this.setExists(newWord.isExists());
+
 
         this.setWordId(newWord.getWord().getId());
         this.setEnglishWord(newWord.getWord().getEnglishWord());
@@ -118,6 +123,22 @@ public class ViewWord implements Serializable {
         this.forgetRate = forgetRate;
     }
 
+    public boolean isRecite() {
+        return isRecite;
+    }
+
+    public void setRecite(boolean recite) {
+        isRecite = recite;
+    }
+
+    public boolean isExists() {
+        return isExists;
+    }
+
+    public void setExists(boolean exists) {
+        isExists = exists;
+    }
+
     public Integer getWordId() {
         return wordId;
     }
@@ -175,6 +196,8 @@ public class ViewWord implements Serializable {
                 ",\n\t lastForgotDatetime=" + lastForgotDatetime +
                 ",\n\t forgetCount=" + forgetCount +
                 ",\n\t forgetRate=" + forgetRate +
+                ",\n\t isRecite=" + isRecite +
+                ",\n\t isExists=" + isExists +
                 ",\n\t wordId='" + wordId + '\'' +
                 ",\n\t englishWord='" + englishWord + '\'' +
                 ",\n\t chineseTranslate='" + chineseTranslate + '\'' +

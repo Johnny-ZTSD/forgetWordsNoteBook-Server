@@ -23,9 +23,11 @@ public class AuthorityService {
     private AuthorityRepository authorityRepository;
 
     /**
-     * 指定用户是否有操作某Action的权限
+     * 指定用户是否有操作某些某数Action的权限
+     *  0.不是对全部action的判断，是对一些需要授权特权才能执行的action
+     *      目前仅有一个这样的action:[WordController]:"/saveWordOfUser/api"
      *  1.依据用户UserId和操作权限码authorityCode
-     *  2.Controller层的数据接口操作名命名中不得含有字符'0'，否则一定会错误
+     *  2.Controller层的数据接口操作名命名中不得含有字符'-'，否则一定会计算错误
      * @author johnny
      * @param userId
      * @param authorityCode 操作权限码
