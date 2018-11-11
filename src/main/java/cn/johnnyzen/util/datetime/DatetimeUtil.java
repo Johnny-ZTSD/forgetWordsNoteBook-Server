@@ -86,16 +86,16 @@ public class DatetimeUtil {
 
         StringBuffer sb = new StringBuffer();
         if(day >= 0) {
-            sb.append(day + "day");//天
+            sb.append(day+"day");
         }
         if(hour >= 0) {
-            sb.append(hour + "hour");//小时
+            sb.append(hour+"hour");
         }
         if(minute >= 0) {
-            sb.append(minute+"minute");//分钟
+            sb.append(minute+"minute");
         }
         if(second >= 0) {
-            sb.append(second+"second");//秒
+            sb.append(second+"second");
         }
         return sb.toString();
 

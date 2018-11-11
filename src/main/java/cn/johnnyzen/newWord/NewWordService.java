@@ -492,9 +492,11 @@ public class NewWordService {
                     System.out.println(dateForLast);
                     String day=dateForLast.substring(0,dateForLast.indexOf("day"));
                     int dayInt=Integer.parseInt(day);
-                    String hour=dateForLast.substring(dateForLast.indexOf("day")+1,dateForLast.indexOf("hour"));
-                    String minute=dateForLast.substring(dateForLast.indexOf("hour")+1,dateForLast.indexOf("minute"));
-                    String second=dateForLast.substring(dateForLast.indexOf("minute")+1,dateForLast.indexOf("second"));
+
+                    String hour=dateForLast.substring(dateForLast.indexOf("day")+3,dateForLast.indexOf("hour"));
+                    String minute=dateForLast.substring(dateForLast.indexOf("hour")+4,dateForLast.indexOf("minute"));
+                    String second=dateForLast.substring(dateForLast.indexOf("minute")+6,dateForLast.indexOf("second"));
+
                     if(dayInt==0){
                         if(Integer.parseInt(hour)>0||Integer.parseInt(minute)>0||Integer.parseInt(second)>0){
                             dayInt=1;
@@ -528,9 +530,11 @@ public class NewWordService {
                     String dateForLast=DatetimeUtil.millisecondToDateString(Math.abs(System.currentTimeMillis()-l));
                     String day=dateForLast.substring(0,dateForLast.indexOf("day"));
                     int dayInt=Integer.parseInt(day);
-                    String hour=dateForLast.substring(dateForLast.indexOf("day")+1,dateForLast.indexOf("hour"));
-                    String minute=dateForLast.substring(dateForLast.indexOf("hour")+1,dateForLast.indexOf("minute"));
-                    String second=dateForLast.substring(dateForLast.indexOf("minute")+1,dateForLast.indexOf("second"));
+
+                    String hour=dateForLast.substring(dateForLast.indexOf("day")+3,dateForLast.indexOf("hour"));
+                    String minute=dateForLast.substring(dateForLast.indexOf("hour")+4,dateForLast.indexOf("minute"));
+                    String second=dateForLast.substring(dateForLast.indexOf("minute")+6,dateForLast.indexOf("second"));
+
                     if(dayInt==0){
                         if(Integer.parseInt(hour)>0||Integer.parseInt(minute)>0||Integer.parseInt(second)>0){
                             dayInt=1;
@@ -561,11 +565,13 @@ public class NewWordService {
                 }else {
                     long l = viewWords.get(i).getLastStoredDatetime().getTime();
                     String dateForLast = DatetimeUtil.millisecondToDateString(Math.abs(System.currentTimeMillis() - l));
-                    String day = dateForLast.substring(0, dateForLast.indexOf("day"));
-                    int dayInt = Integer.parseInt(day);
-                    String hour = dateForLast.substring(dateForLast.indexOf("day") + 1, dateForLast.indexOf("hour"));
-                    String minute = dateForLast.substring(dateForLast.indexOf("hour") + 1, dateForLast.indexOf("minute"));
-                    String second = dateForLast.substring(dateForLast.indexOf("minute") + 1, dateForLast.indexOf("second"));
+
+                    String day=dateForLast.substring(0,dateForLast.indexOf("day"));
+                    int dayInt=Integer.parseInt(day);
+                    String hour=dateForLast.substring(dateForLast.indexOf("day")+3,dateForLast.indexOf("hour"));
+                    String minute=dateForLast.substring(dateForLast.indexOf("hour")+4,dateForLast.indexOf("minute"));
+                    String second=dateForLast.substring(dateForLast.indexOf("minute")+6,dateForLast.indexOf("second"));
+
                     if (dayInt == 0) {
                         if (Integer.parseInt(hour) > 0 || Integer.parseInt(minute) > 0 || Integer.parseInt(second) > 0) {
                             dayInt = 1;
@@ -596,11 +602,13 @@ public class NewWordService {
                     long l = viewWords.get(i).getLastStoredDatetime().getTime();
                     System.out.println(l);//代码重复防止提醒
                     String dateForLast = DatetimeUtil.millisecondToDateString(Math.abs(System.currentTimeMillis() - l));
-                    String day = dateForLast.substring(0, dateForLast.indexOf("day"));
-                    int dayInt = Integer.parseInt(day);
-                    String hour = dateForLast.substring(dateForLast.indexOf("day") + 1, dateForLast.indexOf("hour"));
-                    String minute = dateForLast.substring(dateForLast.indexOf("hour") + 1, dateForLast.indexOf("minute"));
-                    String second = dateForLast.substring(dateForLast.indexOf("minute") + 1, dateForLast.indexOf("second"));
+
+                    String day=dateForLast.substring(0,dateForLast.indexOf("day"));
+                    int dayInt=Integer.parseInt(day);
+                    String hour=dateForLast.substring(dateForLast.indexOf("day")+3,dateForLast.indexOf("hour"));
+                    String minute=dateForLast.substring(dateForLast.indexOf("hour")+4,dateForLast.indexOf("minute"));
+                    String second=dateForLast.substring(dateForLast.indexOf("minute")+6,dateForLast.indexOf("second"));
+
                     if (dayInt == 0) {
                         if (Integer.parseInt(hour) > 0 || Integer.parseInt(minute) > 0 || Integer.parseInt(second) > 0) {
                             dayInt = 1;
