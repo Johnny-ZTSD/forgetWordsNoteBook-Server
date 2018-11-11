@@ -50,9 +50,6 @@ public class NewWordService {
     private WordRepository wordRepository;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
