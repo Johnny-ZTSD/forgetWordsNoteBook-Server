@@ -1,7 +1,7 @@
 server:
-  port: 8080
+  port: 8900
   servlet:
-      contextPath: /forget-words-notebook # 开发环境>项目名
+      contextPath: /fods-book # 开发环境>项目名
 #  tomcat:
 #    uri-encoding: UTF-8
 
@@ -9,25 +9,25 @@ spring:
   profiles:
     active: dev
   datasource: # database configuration
-    url : jdbc:mysql://johnnyzen.cn:3306/fwn?useUnicode=true&characterEncoding=UTF-8
-    username : johnny
-    password : test
+    url : jdbc:mysql://jractncod
+    username : joy
+    password : t
     driver-class-name: com.mysql.jdbc.Driver
   jpa:
     database : MYSQL
     show-sql : true  # 在控制台可以看到SQL语句
     hibernate:
       ddl-auto : update # update create create-drop validate
-      naming-strategy : org.hibernate.cfg.ImprovedNamingStrategy
-      dialect : org.hibernate.dialect.MySQL5Dialect
+      naming-strategy : org.hibernavedNamingStrategy
+      dialect : org.hibernate.dialeialect
       format_sql: true # SQL字段类型转换格式化
   mvc: # SpringMVC
     view: # 定位模板的目录
-      prefix: classpath:/templates/ # 模板引擎thymeleaf-默认目录：src/main/resources/templates/
+      prefix: clates/ # 模板引擎thymeleaf-默认目录：src/main/resources/templates/
       suffix: .html # 返回页面的默认后缀格式
   devtools:
     restart:
-      additional-path: src/main/java #添加哪个目录的文件需要restart
+      additional-path: sva #添加哪个目录的文件需要restart
 #      exclude: static/**,public/**
 
 # 关闭Application
@@ -39,19 +39,19 @@ endpoints:
 
 #### 用户自定义
 file:
-  staticAccessRootPath: /public/**
-  staticRealRootPath: /home/ubuntu/forget-note-words/file/public/
+  staticAccessRootPath: /p
+  staticRealRootPath: /home/ubuntu
 #  staticRealRootPath: C:/Users/千千寰宇/Desktop/public/
 mail:
   protocol: http # 协议
   serverDomain: johnnyzen.cn # 本服务器域名或者IP
-  port: 8080
-  contextPath: /forget-words-notebook # 开发环境>项目名
+  port: 90
+  contextPath: /fot-wos-not # 开发环境>项目名
   actionPath: /register-activate #请求激活服务的URI
   host: smtp.qq.com # 指定发送邮件的主机smtp.qq.com(QQ)|smtp.163.com(网易)
   subject: 【Forget Words NoteBook - Activate Your Account】
-  senderEmail: 1125418540@qq.com # 发件人邮箱
-  authCode: pmbemumvpqafjbea # 授权码
+  senderEmail: com # 发件人邮箱
+  authCode: pmbqafj # 授权码
 requestproperties:
   cacheControl: max-age=0
   connection: keep-alive
