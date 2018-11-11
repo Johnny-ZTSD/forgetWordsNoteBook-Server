@@ -1,5 +1,6 @@
 package cn.johnnyzen.newWord;
 
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -37,6 +38,24 @@ public class ViewWord implements Serializable {
     private String username;
     private String email;
 
+    public Integer getTmpData() {
+        return tmpData;
+    }
+
+    public void setTmpData(Integer tmpData) {
+        this.tmpData = tmpData;
+    }
+
+    /*
+        “tmpData”: 2 #临时字段(数据库不存
+        储)，如果是天数相关，2 即为最近遗忘/
+        记忆 2 天；如果是次数相关，即为遗忘 2
+        次，方便前端展示
+         */
+    @Transient
+
+    private Integer tmpData;
+
     public ViewWord(){
         super();
     }
@@ -60,6 +79,7 @@ public class ViewWord implements Serializable {
         this.setUserId(newWord.getUser().getId());
         this.setUsername(newWord.getUser().getUsername());
         this.setEmail(newWord.getUser().getEmail());
+
     }
 
     public static List<ViewWord> newWordsToViewWords(Collection<NewWord> newWords){
@@ -204,6 +224,7 @@ public class ViewWord implements Serializable {
                 ",\n\t userId='" + userId + '\'' +
                 ",\n\t username='" + username + '\'' +
                 ",\n\t email='" + email + '\'' +
+                ",\n\t tmpData='" + tmpData + '\'' +
                 '}';
     }
 }
