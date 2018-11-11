@@ -88,13 +88,13 @@ public class DatetimeUtil {
         if(day >= 0) {
             sb.append(day+"天");
         }
-        if(hour > 0) {
+        if(hour >= 0) {
             sb.append(hour+"时");
         }
-        if(minute > 0) {
+        if(minute >= 0) {
             sb.append(minute+"分");
         }
-        if(second > 0) {
+        if(second >= 0) {
             sb.append(second+"秒");
         }
         return sb.toString();
