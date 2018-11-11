@@ -30,6 +30,8 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static java.lang.System.currentTimeMillis;
+
 /**
  * @IDE: Created by IntelliJ IDEA.
  * @Author: 千千寰宇
@@ -461,35 +463,164 @@ public class NewWordService {
         //暂时未能解决数据库表级别动态SQL的暴力解决法↓(JPA/Hibernate不支持;Mybits支持)
         if(searchType.equals("ForgetCount") && sortType.equals("DESC")){
             viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByForgetCountDesc(user.getId(), pageable).getContent());
+            for(int i=0;i<viewWords.size();i++){
+                int j=viewWords.get(i).getForgetCount();
+                viewWords.get(i).setTmpData(j);
+                System.out.println(viewWords.get(i));
+            }
             viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
             logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | ForgetCount & DESC | count:" + viewWords.size()  + ">");
             System.out.println(logPrefix + "[viewForgetWords:ForgetCount+DESC] viewWords:");
-            for(ViewWord item:viewWords){
-                System.out.println(viewWords);
-            }
+
             return viewWordsPage;
         } else if(searchType.equals("ForgetCount") && sortType.equals("ASC")){
             viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByForgetCountAsc(user.getId(), pageable).getContent());
+            for(int i=0;i<viewWords.size();i++){
+                int j=viewWords.get(i).getForgetCount();
+                viewWords.get(i).setTmpData(j);
+                System.out.println(viewWords.get(i));
+            }
             viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
             logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | ForgetCount & ASC | count:" + viewWords.size()  + ">");
             return viewWordsPage;
         } else if(searchType.equals("ForgetDatetime") && sortType.equals("DESC")){
             viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByLastForgotDatetimeDesc(user.getId(), pageable).getContent());
+            for(int i=0;i<viewWords.size();i++){
+                if(viewWords.get(i).getLastForgotDatetime()==null){
+                    System.out.println(logPrefix + "[viewForgetWords:ForgetCount+DESC] viewWords:"+"暂无数据");
+                    viewWords.get(i).setTmpData(-1);
+                }else {
+                    long l=viewWords.get(i).getLastForgotDatetime().getTime();
+                    String dateForLast=DatetimeUtil.millisecondToDateString(Math.abs(System.currentTimeMillis()-l));
+                    System.out.println(dateForLast);
+                    String day=dateForLast.substring(0,dateForLast.indexOf("天"));
+                    int dayInt=Integer.parseInt(day);
+                    String hour=dateForLast.substring(dateForLast.indexOf("天")+1,dateForLast.indexOf("时"));
+                    String minute=dateForLast.substring(dateForLast.indexOf("时")+1,dateForLast.indexOf("分"));
+                    String second=dateForLast.substring(dateForLast.indexOf("分")+1,dateForLast.indexOf("秒"));
+                    if(dayInt==0){
+                        if(Integer.parseInt(hour)>0||Integer.parseInt(minute)>0||Integer.parseInt(second)>0){
+                            dayInt=1;
+                        }else{
+                            dayInt=0;
+                        }
+                    }
+                    else if(dayInt>0){
+                        if (Integer.parseInt(hour)>0||Integer.parseInt(minute)>0||Integer.parseInt(second)>0){
+                            dayInt=dayInt+1;
+                        }else {
+                            dayInt = dayInt;
+                        }
+                    }
+                    viewWords.get(i).setTmpData(dayInt);
+                    System.out.println(viewWords.get(i));
+                }
+            }
             viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
             logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | ForgetDatetime & DESC | count:" + viewWords.size()  + ">");
             return viewWordsPage;
         } else if(searchType.equals("ForgetDatetime") && sortType.equals("ASC")){
             viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByLastForgotDatetimeAsc(user.getId(), pageable).getContent());
+            for(int i=0;i<viewWords.size();i++){
+                if(viewWords.get(i).getLastForgotDatetime()==null){
+                    System.out.println(logPrefix + "[viewForgetWords:ForgetCount+DESC] viewWords:"+"暂无数据");
+                    viewWords.get(i).setTmpData(-1);
+                }else {
+                    long l=viewWords.get(i).getLastForgotDatetime().getTime();
+                    System.out.println(l);//代码重复防止提醒
+                    String dateForLast=DatetimeUtil.millisecondToDateString(Math.abs(System.currentTimeMillis()-l));
+                    String day=dateForLast.substring(0,dateForLast.indexOf("天"));
+                    int dayInt=Integer.parseInt(day);
+                    String hour=dateForLast.substring(dateForLast.indexOf("天")+1,dateForLast.indexOf("时"));
+                    String minute=dateForLast.substring(dateForLast.indexOf("时")+1,dateForLast.indexOf("分"));
+                    String second=dateForLast.substring(dateForLast.indexOf("分")+1,dateForLast.indexOf("秒"));
+                    if(dayInt==0){
+                        if(Integer.parseInt(hour)>0||Integer.parseInt(minute)>0||Integer.parseInt(second)>0){
+                            dayInt=1;
+                        }else{
+                            dayInt=0;
+                        }
+                    }
+                    else if(dayInt>0){
+                        if (Integer.parseInt(hour)>0||Integer.parseInt(minute)>0||Integer.parseInt(second)>0){
+                            dayInt=dayInt+1;
+                        }else {
+                            dayInt = dayInt;
+                        }
+                    }
+                    viewWords.get(i).setTmpData(dayInt);
+                    System.out.println(viewWords.get(i));
+                }
+            }
             viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
             logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | ForgetDatetime & ASC | count:" + viewWords.size()  + ">");
             return viewWordsPage;
         } else if(searchType.equals("StoredDatetime") && sortType.equals("DESC")){
             viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByLastStoredDatetimeDesc(user.getId(), pageable).getContent());
+            for(int i=0;i<viewWords.size();i++){
+                if(viewWords.get(i).getLastStoredDatetime()==null){
+                    System.out.println(logPrefix + "[viewForgetWords:ForgetCount+DESC] viewWords:"+"暂无数据");
+                    viewWords.get(i).setTmpData(-1);
+                }else {
+                    long l = viewWords.get(i).getLastStoredDatetime().getTime();
+                    String dateForLast = DatetimeUtil.millisecondToDateString(Math.abs(System.currentTimeMillis() - l));
+                    String day = dateForLast.substring(0, dateForLast.indexOf("天"));
+                    int dayInt = Integer.parseInt(day);
+                    String hour = dateForLast.substring(dateForLast.indexOf("天") + 1, dateForLast.indexOf("时"));
+                    String minute = dateForLast.substring(dateForLast.indexOf("时") + 1, dateForLast.indexOf("分"));
+                    String second = dateForLast.substring(dateForLast.indexOf("分") + 1, dateForLast.indexOf("秒"));
+                    if (dayInt == 0) {
+                        if (Integer.parseInt(hour) > 0 || Integer.parseInt(minute) > 0 || Integer.parseInt(second) > 0) {
+                            dayInt = 1;
+                        } else {
+                            dayInt = 0;
+                        }
+                    } else if (dayInt > 0) {
+                        if (Integer.parseInt(hour) > 0 || Integer.parseInt(minute) > 0 || Integer.parseInt(second) > 0) {
+                            dayInt = dayInt + 1;
+                        } else {
+                            dayInt = dayInt;
+                        }
+                    }
+                    viewWords.get(i).setTmpData(dayInt);
+                    System.out.println(viewWords.get(i));
+                }
+            }
             viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
             logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | StoredDatetime & DESC | count:" + viewWords.size()  + ">");
             return viewWordsPage;
         } else if(searchType.equals("StoredDatetime") && sortType.equals("ASC")){
             viewWords = ViewWord.newWordsToViewWords(newWordRepository.findAllByUserIdOrderByLastStoredDatetimeAsc(user.getId(), pageable).getContent());
+            for(int i=0;i<viewWords.size();i++){
+                if(viewWords.get(i).getLastStoredDatetime()==null){
+                    System.out.println(logPrefix + "[viewForgetWords:ForgetCount+DESC] viewWords:"+"暂无数据");
+                    viewWords.get(i).setTmpData(-1);
+                }else {
+                    long l = viewWords.get(i).getLastStoredDatetime().getTime();
+                    System.out.println(l);//代码重复防止提醒
+                    String dateForLast = DatetimeUtil.millisecondToDateString(Math.abs(System.currentTimeMillis() - l));
+                    String day = dateForLast.substring(0, dateForLast.indexOf("天"));
+                    int dayInt = Integer.parseInt(day);
+                    String hour = dateForLast.substring(dateForLast.indexOf("天") + 1, dateForLast.indexOf("时"));
+                    String minute = dateForLast.substring(dateForLast.indexOf("时") + 1, dateForLast.indexOf("分"));
+                    String second = dateForLast.substring(dateForLast.indexOf("分") + 1, dateForLast.indexOf("秒"));
+                    if (dayInt == 0) {
+                        if (Integer.parseInt(hour) > 0 || Integer.parseInt(minute) > 0 || Integer.parseInt(second) > 0) {
+                            dayInt = 1;
+                        } else {
+                            dayInt = 0;
+                        }
+                    } else if (dayInt > 0) {
+                        if (Integer.parseInt(hour) > 0 || Integer.parseInt(minute) > 0 || Integer.parseInt(second) > 0) {
+                            dayInt = dayInt + 1;
+                        } else {
+                            dayInt = dayInt;
+                        }
+                    }
+                    viewWords.get(i).setTmpData(dayInt);
+                    System.out.println(viewWords.get(i));
+                }
+            }
             viewWordsPage = new PageImpl<ViewWord>(viewWords, pageable, viewWords.size());
             logger.info(logPrefix + "<user:" + user.toStringJustUsernameAndEmail() + " | StoredDatetime & ASC | count:" + viewWords.size()  + ">");
             return viewWordsPage;
