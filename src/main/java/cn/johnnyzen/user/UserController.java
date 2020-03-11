@@ -46,6 +46,9 @@ public class UserController {
 
     /**
      * 更新用户头像
+     * SpringMVC 文件上传下载 ：
+     *      Spring MVC4使用Servlet3 MultiPartConfigElement文件上传实例
+     *          https://www.yiibai.com/spring_mvc/spring4-mvc-file-upload-using-multipartconfigelement.html
      * @param request
      * <@param> token
      *          登陆校验过滤器校验登陆时，由于上传文件的form-data形式无法读取token；
